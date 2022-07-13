@@ -30,12 +30,10 @@ namespace LoVe
 **Step 1:** A rational number is a number that can be expressed as a fraction
 `n / d` of integers `n` and `d ≠ 0`: -/
 
---quo fraction
 structure fraction :=
 (num           : ℤ)
 (denom         : ℤ)
 (denom_ne_zero : denom ≠ 0)
---ouq
 
 /-! The number `n` is called the numerator, and the number `d` is called the
 denominator.
@@ -47,11 +45,8 @@ The representation of a rational number as a fraction is not unique—e.g.,
 number if the ratio between numerator and denominator are the same—i.e.,
 `n₁ * d₂ = n₂ * d₁`. This will be our equivalence relation `≈` on fractions. -/
 
---quo namespace_fraction
 namespace fraction
---ouq
 
---quo fraction_setoid
 @[instance] def setoid : setoid fraction :=
 { r     := λa b : fraction, num a * denom b = num b * denom a,
   iseqv :=
@@ -67,7 +62,6 @@ namespace fraction
 lemma setoid_iff (a b : fraction) :
   a ≈ b ↔ num a * denom b = num b * denom a :=
 by refl
---ouq
 
 /-! **Step 3:** Define `0 := 0 / 1`, `1 := 1 / 1`, addition, multiplication, etc.
 
@@ -81,26 +75,19 @@ def of_int (i : ℤ) : fraction :=
   denom         := 1,
   denom_ne_zero := by simp }
 
---quo has_zero_fraction
 @[instance] def has_zero : has_zero fraction :=
 { zero := of_int 0 }
---ouq
 
---quo has_one_fraction
 @[instance] def has_one : has_one fraction :=
 { one := of_int 1 }
---ouq
 
---quo has_add_fraction
 @[instance] def has_add : has_add fraction :=
 { add := λa b : fraction,
     { num           := num a * denom b + num b * denom a,
       denom         := denom a * denom b,
       denom_ne_zero :=
         by apply mul_ne_zero; exact denom_ne_zero _ } }
---ouq
 
---quo setoid_fraction
 @[simp] lemma add_num (a b : fraction) :
   num (a + b) = num a * denom b + num b * denom a :=
 by refl
@@ -126,7 +113,6 @@ begin
           * (denom a * denom b) :
     by simp [add_mul, mul_add]; ac_refl
 end
---ouq
 
 @[instance] def has_neg : has_neg fraction :=
 { neg := λa : fraction,
@@ -214,30 +200,19 @@ begin
       cc } }
 end
 
---quo end_fraction
 end fraction
---ouq
 
---quo rat_def
 def rat : Type :=
 quotient fraction.setoid
---ouq
 
---quo namespace_rat
 namespace rat
---ouq
 
---quo has_zero_rat
 @[instance] def has_zero : has_zero rat :=
 { zero := ⟦0⟧ }
---ouq
 
---quo has_one_rat
 @[instance] def has_one : has_one rat :=
 { one := ⟦1⟧ }
---ouq
 
---quo has_add_rat
 @[instance] def has_add : has_add rat :=
 { add := quotient.lift₂ (λa b : fraction, ⟦a + b⟧)
     begin
@@ -245,7 +220,6 @@ namespace rat
       apply quotient.sound,
       exact fraction.add_equiv_add ha hb
     end }
---ouq
 
 @[instance] def has_neg : has_neg rat :=
 { neg := quotient.lift (λa : fraction, ⟦- a⟧)
@@ -271,9 +245,7 @@ namespace rat
       exact fraction.setoid_inv ha
     end }
 
---quo end_rat
 end rat
---ouq
 
 
 /-! ### Alternative Definitions of `ℚ`
@@ -284,7 +256,6 @@ no common divisors except `1` and `-1`: -/
 
 namespace alternative
 
---quo alternative.rat_def
 def rat.is_canonical (a : fraction) : Prop :=
 fraction.denom a > 0
 ∧ nat.coprime (int.nat_abs (fraction.num a))
@@ -292,7 +263,6 @@ fraction.denom a > 0
 
 def rat : Type :=
 {a : fraction // rat.is_canonical a}
---ouq
 
 end alternative
 
@@ -343,14 +313,11 @@ any `ε > 0`, there exists an `N ∈ ℕ` such that for all `m ≥ N`, we have
 In other words, no matter how small we choose `ε`, we can always find a point in
 the sequence from which all following numbers deviate less than by `ε`. -/
 
---quo is_cau_seq
 def is_cau_seq (f : ℕ → ℚ) : Prop :=
 ∀ε > 0, ∃N, ∀m ≥ N, abs (f N - f m) < ε
---ouq
 
 /-! Not every sequence is a Cauchy sequence: -/
 
---quo id_not_cau_seq
 lemma id_not_cau_seq :
   ¬ is_cau_seq (λn : ℕ, (n : ℚ)) :=
 begin
@@ -362,19 +329,14 @@ begin
   simp [←sub_sub] at hi_succi,
   assumption
 end
---ouq
 
 /-! We define a type of Cauchy sequences as a subtype: -/
 
---quo cau_seq
 def cau_seq : Type :=
 {f : ℕ → ℚ // is_cau_seq f}
---ouq
 
---quo seq_of
 def seq_of (f : cau_seq) : ℕ → ℚ :=
 subtype.val f
---ouq
 
 /-! Cauchy sequences represent real numbers:
 
@@ -386,11 +348,8 @@ Since different Cauchy sequences can represent the same real number, we need to
 take the quotient. Formally, two sequences represent the same real number when
 their difference converges to zero: -/
 
---quo namespace_cau_seq
 namespace cau_seq
---ouq
 
---quo cau_seq_equiv
 @[instance] def setoid : setoid cau_seq :=
 { r     := λf g : cau_seq,
     ∀ε > 0, ∃N, ∀m ≥ N, abs (seq_of f m - seq_of g m) < ε,
@@ -427,31 +386,25 @@ lemma setoid_iff (f g : cau_seq) :
   f ≈ g ↔
   ∀ε > 0, ∃N, ∀m ≥ N, abs (seq_of f m - seq_of g m) < ε :=
 by refl
---ouq
 
 /-! We can define constants such as `0` and `1` as a constant sequence. Any
 constant sequence is a Cauchy sequence: -/
 
---quo const
 def const (q : ℚ) : cau_seq :=
 subtype.mk (λ_ : ℕ, q) (by rw is_cau_seq; intros ε hε; finish)
---ouq
 
 /-! Defining addition of real numbers requires a little more effort. We define
 addition on Cauchy sequences as pairwise addition: -/
 
---quo cau_seq_has_add
 @[instance] def has_add : has_add cau_seq :=
 { add := λf g : cau_seq,
     subtype.mk (λn : ℕ, seq_of f n + seq_of g n) sorry }
---ouq
 
 /-! Above, we omit the proof that the addition of two Cauchy sequences is again
 a Cauchy sequence.
 
 Next, we need to show that this addition is compatible with `≈`: -/
 
---quo cau_seq_add_equiv_add
 lemma add_equiv_add {f f' g g' : cau_seq} (hf : f ≈ f')
     (hg : g ≈ g') :
   f + g ≈ f' + g' :=
@@ -484,32 +437,22 @@ begin
   ... = ε₀ :
     by simp
 end
---ouq
 
---quo end_cau_seq
 end cau_seq
---ouq
 
 /-! The real numbers are the quotient: -/
 
---quo real_def
 def real : Type :=
 quotient cau_seq.setoid
---ouq
 
---quo namespace_real
 namespace real
---ouq
 
---quo has_zero_real
 @[instance] def has_zero : has_zero real :=
 { zero := ⟦cau_seq.const 0⟧ }
 
 @[instance] def has_one : has_one real :=
 { one := ⟦cau_seq.const 1⟧ }
---ouq
 
---quo has_add_real
 @[instance] def has_add : has_add real :=
 { add := quotient.lift₂ (λa b : cau_seq, ⟦a + b⟧)
     begin
@@ -517,11 +460,8 @@ namespace real
       apply quotient.sound,
       exact cau_seq.add_equiv_add ha hb,
     end }
---ouq
 
---quo end_real
 end real
---ouq
 
 
 /-! ### Alternative Definitions of `ℝ`

@@ -1,4 +1,4 @@
-import .love05_inductive_predicates_demo_master
+import .love05_inductive_predicates_demo
 
 
 /-! # LoVe Demo 11: Logical Foundations of Mathematics
@@ -138,11 +138,9 @@ performing rule induction by pattern matching. -/
 
 #check proof_irrel
 
---quo proof_irrel
 lemma proof_irrel {a : Prop} (h₁ h₂ : a) :
   h₁ = h₂ :=
 by refl
---ouq
 
 
 /-! ### No Large Elimination
@@ -155,15 +153,11 @@ This is necessary to allow proof irrelevance. -/
 
 #check 0
 
-/-fails
---quo unsquare
 -- fails
 def unsquare (i : ℤ) (hsq : ∃j, i = j * j) : ℤ :=
 match hsq with
 | Exists.intro j _ := j
 end
---ouq
-sliaf-/
 
 /-! If the above were accepted, we could derive `false` as follows.
 
@@ -213,11 +207,9 @@ Consider Lean's `nonempty` inductive predicate: -/
 
 To prove `nonempty α`, we must provide an `α` value to `nonempty.intro`: -/
 
---quo nat.nonempty
 lemma nat.nonempty :
   nonempty ℕ :=
 nonempty.intro 0
---ouq
 
 /-! Since `nonempty` lives in `Prop`, large elimination is not available, and
 thus we cannot extract the element that was used from a proof of `nonempty α`.
@@ -233,9 +225,7 @@ whether this is the element that was used to prove `nonempty α`.
 The constant `classical.choice` is noncomputable, one of the reasons why some
 logicians prefer to work without this axiom. -/
 
-/-fails
 #eval classical.choice nat.nonempty     -- fails
-sliaf-/
 #reduce classical.choice nat.nonempty   -- result: classical.choice _
 
 /-! The axiom of choice is only an axiom in Lean's core library, giving users
@@ -282,11 +272,9 @@ Subtyping is useful for those types that cannot be defined as an inductive
 type. For example, any attempt at defining the type of finite sets along the
 following lines is doomed to fail: -/
 
---quo finset
 inductive finset (α : Type) : Type
 | empty  : finset
 | insert : α → finset → finset
---ouq
 
 /-! Given a base type and a property, the subtype has the syntax
 
@@ -310,10 +298,8 @@ Alias:
 #check is_full_mirror
 #check mirror_mirror
 
---quo full_btree
 def full_btree (α : Type) : Type :=
 {t : btree α // is_full t}
---ouq
 
 #print subtype
 #check subtype.mk
@@ -321,7 +307,6 @@ def full_btree (α : Type) : Type :=
 /-! To define elements of `full_btree`, we must provide a `btree` and a proof
 that it is full: -/
 
---quo empty_full_btree
 def empty_full_btree : full_btree ℕ :=
 subtype.mk btree.empty is_full.empty
 
@@ -333,16 +318,12 @@ subtype.mk (btree.node 6 btree.empty btree.empty)
     apply is_full.empty,
     refl
   end
---ouq
 
---quo val_prop
 #reduce subtype.val full_btree_6
 #check subtype.property full_btree_6
---ouq
 
 /-! We can lift existing operations on `btree` to `full_btree`: -/
 
---quo full_btree_mirror
 def full_btree.mirror {α : Type} (t : full_btree α) :
   full_btree α :=
 subtype.mk (mirror (subtype.val t))
@@ -350,20 +331,17 @@ subtype.mk (mirror (subtype.val t))
     apply is_full_mirror,
     apply subtype.property t
   end
---ouq
 
 #reduce subtype.val (full_btree.mirror full_btree_6)
 
 /-! And of course we can prove lemmas about the lifted operations: -/
 
---quo full_btree_mirror_mirror
 lemma full_btree.mirror_mirror {α : Type} (t : full_btree α) :
   (full_btree.mirror (full_btree.mirror t)) = t :=
 begin
   apply subtype.eq,
   simp [full_btree.mirror, mirror_mirror]
 end
---ouq
 
 #check subtype.eq
 
@@ -372,33 +350,25 @@ end
 
 #check vector
 
---quo vector
 def vector (α : Type) (n : ℕ) : Type :=
 {xs : list α // list.length xs = n}
---ouq
 
---quo vector_123
 def vector_123 : vector ℤ 3 :=
 subtype.mk [1, 2, 3] (by refl)
---ouq
 
---quo vector.neg
 def vector.neg {n : ℕ} (v : vector ℤ n) : vector ℤ n :=
 subtype.mk (list.map int.neg (subtype.val v))
   begin
     rw list.length_map,
     exact subtype.property v
   end
---ouq
 
---quo vector.neg_neg
 lemma vector.neg_neg (n : ℕ) (v : vector ℤ n) :
   vector.neg (vector.neg v) = v :=
 begin
   apply subtype.eq,
   simp [vector.neg]
 end
---ouq
 
 #check finset
 
@@ -447,7 +417,6 @@ We want two pairs `(p₁, n₁)` and `(p₂, n₂)` to be equal if `p₁ - n₁ 
 However, this does not work because subtraction on `ℕ` is ill-behaved (e.g.,
 `0 - 1 = 0`). Instead, we use `p₁ + n₂ = p₂ + n₁`. -/
 
---quo int.rel
 @[instance] def int.rel : setoid (ℕ × ℕ) :=
 { r     :=
     λpn₁ pn₂ : ℕ × ℕ,
@@ -463,28 +432,20 @@ However, this does not work because subtraction on `ℕ` is ill-behaved (e.g.,
         apply @add_right_cancel _ _ _ (prod.snd pn₂),
         cc }
     end }
---ouq
 
 #print equivalence
 
---quo int.rel_iff
 lemma int.rel_iff (pn₁ pn₂ : ℕ × ℕ) :
   pn₁ ≈ pn₂ ↔
   prod.fst pn₁ + prod.snd pn₂ = prod.fst pn₂ + prod.snd pn₁ :=
 by refl
---ouq
 
---quo int_def
 def int : Type :=
 quotient int.rel
---ouq
 
---quo int.zero
 def int.zero : int :=
 ⟦(0, 0)⟧
---ouq
 
---quo int.zero_eq
 lemma int.zero_eq (m : ℕ) :
   int.zero = ⟦(m, m)⟧ :=
 begin
@@ -493,9 +454,7 @@ begin
   rw int.rel_iff,
   simp
 end
---ouq
 
---quo int.add
 def int.add : int → int → int :=
 quotient.lift₂
   (λpn₁ pn₂ : ℕ × ℕ,
@@ -507,15 +466,11 @@ quotient.lift₂
     rw int.rel_iff at *,
     linarith
   end
---ouq
 
---quo int.add_eq
 lemma int.add_eq (p₁ n₁ p₂ n₂ : ℕ) :
   int.add ⟦(p₁, n₁)⟧ ⟦(p₂, n₂)⟧ = ⟦(p₁ + p₂, n₁ + n₂)⟧ :=
 by refl
---ouq
 
---quo int.add_zero
 lemma int.add_zero (i : int) :
   int.add int.zero i = i :=
 begin
@@ -527,27 +482,18 @@ begin
   apply quotient.sound,
   simp
 end
---ouq
 
 /-! This definitional syntax would be nice: -/
 
-/-fails
---quo int.add₂
 -- fails
 def int.add : int → int → int
 | ⟦(p₁, n₁)⟧ ⟦(p₂, n₂)⟧ := ⟦(p₁ + p₂, n₁ + n₂)⟧
---ouq
-sliaf-/
 
 /-! But it would be dangerous: -/
 
-/-fails
---quo int.fst
 -- fails
 def int.fst : int → ℕ
 | ⟦(p, n)⟧ := p
---ouq
-sliaf-/
 
 /-! Using `int.fst`, we could derive `false`. First, we have
 
@@ -567,38 +513,29 @@ and second components. They are usually written `{a, b}`.
 We will introduce the type `upair` of unordered pairs as the quotient of pairs
 `(a, b)` with respect to the relation "contains the same elements as". -/
 
---quo upair.rel
 @[instance] def upair.rel (α : Type) : setoid (α × α) :=
 { r     := λab₁ ab₂ : α × α,
     ({prod.fst ab₁, prod.snd ab₁} : set α) =
     ({prod.fst ab₂, prod.snd ab₂} : set α),
   iseqv := by repeat { apply and.intro }; finish }
---ouq
 
 -- needed for technical reasons, to deprioritize `upair.rel` w.r.t. `int.rel`
 attribute [instance, priority 999] upair.rel
 
---quo upair.rel_iff
 lemma upair.rel_iff {α : Type} (ab₁ ab₂ : α × α) :
   ab₁ ≈ ab₂ ↔
   ({prod.fst ab₁, prod.snd ab₁} : set α) =
   ({prod.fst ab₂, prod.snd ab₂} : set α) :=
 by refl
---ouq
 
---quo upair_def
 def upair (α : Type) : Type :=
 quotient (upair.rel α)
---ouq
 
---quo upair.mk
 def upair.mk {α : Type} (a b : α) : upair α :=
 ⟦(a, b)⟧
---ouq
 
 /-! It is easy to prove that the `upair.mk` constructor is symmetric: -/
 
---quo upair.mk_symm
 lemma upair.mk_symm {α : Type} (a b : α) :
   upair.mk a b = upair.mk b a :=
 begin
@@ -607,12 +544,10 @@ begin
   rw upair.rel_iff,
   apply set.union_comm
 end
---ouq
 
 /-! Another representation of unordered pairs is as sets of cardinality 1 or 2.
 The following operation converts `upair` to that representation: -/
 
---quo set_of_upair
 def set_of_upair {α : Type} : upair α → set α :=
 quotient.lift (λab : α × α, {prod.fst ab, prod.snd ab})
   begin
@@ -620,7 +555,6 @@ quotient.lift (λab : α × α, {prod.fst ab, prod.snd ab})
     rw upair.rel_iff at *,
     exact h
   end
---ouq
 
 
 /-! ### Alternative Definitions via Normalization and Subtyping
@@ -635,27 +569,20 @@ __canonical__ if `p` or `n` is `0`. -/
 
 namespace alternative
 
---quo int.is_canonical
 inductive int.is_canonical : ℕ × ℕ → Prop
 | nonpos {n : ℕ} : int.is_canonical (0, n)
 | nonneg {p : ℕ} : int.is_canonical (p, 0)
---ouq
 
---quo int_subtype_def
 def int : Type :=
 {pn : ℕ × ℕ // int.is_canonical pn}
---ouq
 
 /-! **Normalizing** pairs of natural numbers is easy: -/
 
---quo int_normalization
 def int.normalize : ℕ × ℕ → ℕ × ℕ
 | (p, n) := if p ≥ n then (p - n, 0) else (0, n - p)
 
 lemma int.is_canonical_normalize (pn : ℕ × ℕ) :
-  int.is_canonical (int.normalize pn)
---ouq
-:=
+  int.is_canonical (int.normalize pn) :=
 begin
   cases' pn with p n,
   simp [int.normalize],
@@ -667,14 +594,12 @@ end
 /-! For unordered pairs, there is no obvious normal form, except to always put
 the smaller element first (or last). This requires a linear order `≤` on `α`. -/
 
---quo upair_subtype_def
 def upair.is_canonical {α : Type} [linear_order α] :
   α × α → Prop
 | (a, b) := a ≤ b
 
 def upair (α : Type) [linear_order α] : Type :=
 {ab : α × α // upair.is_canonical ab}
---ouq
 
 end alternative
 

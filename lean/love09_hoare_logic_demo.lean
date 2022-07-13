@@ -1,4 +1,4 @@
-import .love08_operational_semantics_demo_master
+import .love08_operational_semantics_demo
 
 
 /-! # LoVe Demo 9: Hoare Logic
@@ -173,45 +173,34 @@ We can, and will, define Hoare triples **semantically** in Lean.
 We will use predicates on states (`state → Prop`) to represent pre- and
 postconditions, following the shallow embedding style. -/
 
---quo partial_hoare
 def partial_hoare (P : state → Prop) (S : stmt)
   (Q : state → Prop) : Prop :=
 ∀s t, P s → (S, s) ⟹ t → Q t
---ouq
 
 notation `{* ` P : 1 ` *} ` S : 1 ` {* ` Q : 1 ` *}` :=
 partial_hoare P S Q
 
 namespace partial_hoare
 
---quo skip_intro
 lemma skip_intro {P} :
-  {* P *} stmt.skip {* P *}
---ouq
-:=
+  {* P *} stmt.skip {* P *} :=
 begin
   intros s t hs hst,
   cases' hst,
   assumption
 end
 
---quo assign_intro
 lemma assign_intro (P : state → Prop) {x} {a : state → ℕ} :
-  {* λs, P (s{x ↦ a s}) *} stmt.assign x a {* P *}
---ouq
-:=
+  {* λs, P (s{x ↦ a s}) *} stmt.assign x a {* P *} :=
 begin
   intros s t P hst,
   cases' hst,
   assumption
 end
 
---quo seq_intro
 lemma seq_intro {P Q R S T} (hS : {* P *} S {* Q *})
     (hT : {* Q *} T {* R *}) :
-  {* P *} S ;; T {* R *}
---ouq
-:=
+  {* P *} S ;; T {* R *} :=
 begin
   intros s t hs hst,
   cases' hst,
@@ -222,13 +211,10 @@ begin
   { assumption }
 end
 
---quo ite_intro
 lemma ite_intro {b P Q : state → Prop} {S T}
     (hS : {* λs, P s ∧ b s *} S {* Q *})
     (hT : {* λs, P s ∧ ¬ b s *} T {* Q *}) :
-  {* P *} stmt.ite b S T {* Q *}
---ouq
-:=
+  {* P *} stmt.ite b S T {* Q *} :=
 begin
   intros s t hs hst,
   cases' hst,
@@ -240,12 +226,9 @@ begin
     assumption }
 end
 
---quo while_intro
 lemma while_intro (P : state → Prop) {b : state → Prop} {S}
     (h : {* λs, P s ∧ b s *} S {* P *}) :
-  {* P *} stmt.while b S {* λs, P s ∧ ¬ b s *}
---ouq
-:=
+  {* P *} stmt.while b S {* λs, P s ∧ ¬ b s *} :=
 begin
   intros s t hs hst,
   induction' hst,
@@ -256,74 +239,52 @@ begin
     exact and.intro hs hcond }
 end
 
---quo consequence
 lemma consequence {P P' Q Q' : state → Prop} {S}
     (h : {* P *} S {* Q *}) (hp : ∀s, P' s → P s)
     (hq : ∀s, Q s → Q' s) :
-  {* P' *} S {* Q' *}
---ouq
-:=
+  {* P' *} S {* Q' *} :=
 fix s t,
 assume hs : P' s,
 assume hst : (S, s) ⟹ t,
 show Q' t, from
   hq _ (h s t (hp s hs) hst)
 
---quo consequence_left
 lemma consequence_left (P' : state → Prop) {P Q S}
     (h : {* P *} S {* Q *}) (hp : ∀s, P' s → P s) :
-  {* P' *} S {* Q *}
---ouq
-:=
+  {* P' *} S {* Q *} :=
 consequence h hp (by cc)
 
---quo consequence_right
 lemma consequence_right (Q) {Q' : state → Prop} {P S}
     (h : {* P *} S {* Q *}) (hq : ∀s, Q s → Q' s) :
-  {* P *} S {* Q' *}
---ouq
-:=
+  {* P *} S {* Q' *} :=
 consequence h (by cc) hq
 
---quo skip_intro'
 lemma skip_intro' {P Q : state → Prop} (h : ∀s, P s → Q s) :
-  {* P *} stmt.skip {* Q *}
---ouq
-:=
+  {* P *} stmt.skip {* Q *} :=
 consequence skip_intro h (by cc)
 
---quo assign_intro'
 lemma assign_intro' {P Q : state → Prop} {x} {a : state → ℕ}
     (h : ∀s, P s → Q (s{x ↦ a s})):
-  {* P *} stmt.assign x a {* Q *}
---ouq
-:=
+  {* P *} stmt.assign x a {* Q *} :=
 consequence (assign_intro Q) h (by cc)
 
---quo seq_intro'
 lemma seq_intro' {P Q R S T} (hT : {* Q *} T {* R *})
     (hS : {* P *} S {* Q *}) :
-  {* P *} S ;; T {* R *}
---ouq
-:=
+  {* P *} S ;; T {* R *} :=
 seq_intro hS hT
 
---quo while_intro'
 lemma while_intro' {b P Q : state → Prop} {S}
     (I : state → Prop)
     (hS : {* λs, I s ∧ b s *} S {* I *})
     (hP : ∀s, P s → I s)
     (hQ : ∀s, ¬ b s → I s → Q s) :
-  {* P *} stmt.while b S {* Q *}
---ouq
-:=
+  {* P *} stmt.while b S {* Q *} :=
 consequence (while_intro I hS) hP (by finish)
 
 /-! `finish` applies a combination of techniques, including normalization of
 logical connectives and quantifiers, simplification, congruence closure, and
 quantifier instantiation. It either fully succeeds or fails. -/
 
---quo assign_intro_forward
 lemma assign_intro_forward (P) {x a} :
   {* P *}
   stmt.assign x a
@@ -334,16 +295,12 @@ begin
   apply exists.intro (s x),
   simp [*]
 end
---ouq
 
---quo assign_intro_backward
 lemma assign_intro_backward (Q : state → Prop) {x}
     {a : state → ℕ} :
   {* λs, ∃n', Q (s{x ↦ n'}) ∧ n' = a s *}
   stmt.assign x a
-  {* Q *}
---ouq
-:=
+  {* Q *} :=
 begin
   apply assign_intro',
   intros s hP,
@@ -356,21 +313,15 @@ end partial_hoare
 
 /-! ## First Program: Exchanging Two Variables -/
 
---quo SWAP
 def SWAP : stmt :=
 stmt.assign "t" (λs, s "a") ;;
 stmt.assign "a" (λs, s "b") ;;
 stmt.assign "b" (λs, s "t")
---ouq
 
---quo SWAP_correct_statement
 lemma SWAP_correct (a₀ b₀ : ℕ) :
   {* λs, s "a" = a₀ ∧ s "b" = b₀ *}
   SWAP
-  {* λs, s "a" = b₀ ∧ s "b" = a₀ *}
---ouq
-:=
---quo SWAP_correct_proof
+  {* λs, s "a" = b₀ ∧ s "b" = a₀ *} :=
 begin
   apply partial_hoare.seq_intro',
   apply partial_hoare.seq_intro',
@@ -379,9 +330,7 @@ begin
   apply partial_hoare.assign_intro',
   simp { contextual := tt }
 end
---ouq
 
---quo SWAP_correct₂
 lemma SWAP_correct₂ (a₀ b₀ : ℕ) :
   {* λs, s "a" = a₀ ∧ s "b" = b₀ *}
   SWAP
@@ -395,19 +344,15 @@ begin
   cases' hstep_1,
   finish
 end
---ouq
 
 
 /-! ## Second Program: Adding Two Numbers -/
 
---quo ADD
 def ADD : stmt :=
 stmt.while (λs, s "n" ≠ 0)
   (stmt.assign "n" (λs, s "n" - 1) ;;
    stmt.assign "m" (λs, s "m" + 1))
---ouq
 
---quo ADD_correct
 lemma ADD_correct (n₀ m₀ : ℕ) :
   {* λs, s "n" = n₀ ∧ s "m" = m₀ *}
   ADD
@@ -427,7 +372,6 @@ partial_hoare.while_intro' (λs, s "n" + s "m" = n₀ + m₀)
   end
   (by simp { contextual := tt })
   (by simp { contextual := tt })
---ouq
 
 /-! How did we come up with this invariant? The invariant must
 
@@ -468,14 +412,11 @@ VCGs typically work backwards from the postcondition, using backward rules
 (rules stated to have an arbitrary `Q` as their postcondition). This works well
 because `Asn` is backward. -/
 
---quo while_inv
 def stmt.while_inv (I b : state → Prop) (S : stmt) : stmt :=
 stmt.while b S
---ouq
 
 namespace partial_hoare
 
---quo while_inv_intro
 lemma while_inv_intro {b I Q : state → Prop} {S}
     (hS : {* λs, I s ∧ b s *} S {* I *})
     (hQ : ∀s, ¬ b s → I s → Q s) :
@@ -487,11 +428,9 @@ lemma while_inv_intro' {b I P Q : state → Prop} {S}
     (hP : ∀s, P s → I s) (hQ : ∀s, ¬ b s → I s → Q s) :
   {* P *} stmt.while_inv I b S {* Q *} :=
 while_intro' I hS hP hQ
---ouq
 
 end partial_hoare
 
---quo vcg
 meta def vcg : tactic unit :=
 do
   t ← tactic.target,
@@ -520,7 +459,6 @@ do
     end
   | _                        := pure ()
   end
---ouq
 
 end LoVe
 
@@ -534,7 +472,6 @@ namespace LoVe
 
 /-! ## Second Program Revisited: Adding Two Numbers -/
 
---quo ADD_correct₂
 lemma ADD_correct₂ (n₀ m₀ : ℕ) :
   {* λs, s "n" = n₀ ∧ s "m" = m₀ *}
   ADD
@@ -554,7 +491,6 @@ show {* λs, s "n" = n₀ ∧ s "m" = m₀ *}
     { simp [nat.succ_eq_add_one],
       linarith }
   end
---ouq
 
 
 /-! ## Hoare Triples for Total Correctness

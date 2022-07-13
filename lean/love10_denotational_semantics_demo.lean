@@ -1,4 +1,4 @@
-import .love08_operational_semantics_demo_master
+import .love08_operational_semantics_demo
 
 
 /-! # LoVe Demo 10: Denotational Semantics
@@ -251,17 +251,14 @@ Nonexamples:
 * `ℕ`, `ℤ`, `ℚ`, `ℝ`: no infimum for `∅`, `Inf ℕ`, etc.
 * `erat := ℚ ∪ {- ∞, ∞}`: `Inf {q | 2 < q * q} = sqrt 2` is not in `erat`. -/
 
---quo complete_lattice
 @[class] structure complete_lattice (α : Type)
   extends partial_order α : Type :=
 (Inf    : set α → α)
 (Inf_le : ∀A b, b ∈ A → Inf A ≤ b)
 (le_Inf : ∀A b, (∀a, a ∈ A → b ≤ a) → b ≤ Inf A)
---ouq
 
 /-! For sets: -/
 
---quo set.complete_lattice
 @[instance] def set.complete_lattice {α : Type} :
   complete_lattice (set α) :=
 { le          := (⊆),
@@ -276,7 +273,6 @@ Nonexamples:
   Inf         := λX, {a | ∀A, A ∈ X → a ∈ A},
   Inf_le      := by tautology,
   le_Inf      := by tautology }
---ouq
 
 
 /-! ## Least Fixpoint -/
@@ -323,7 +319,6 @@ end
 
 /-! ## A Relational Denotational Semantics, Continued -/
 
---quo denote_first_lines
 def denote : stmt → set (state × state)
 | stmt.skip         := Id
 | (stmt.assign x a) :=
@@ -331,15 +326,11 @@ def denote : stmt → set (state × state)
 | (stmt.seq S T)    := denote S ◯ denote T
 | (stmt.ite b S T)  :=
   (denote S ⇃ b) ∪ (denote T ⇃ (λs, ¬ b s))
---ouq
---quo denote_last_line
 | (stmt.while b S)  :=
   lfp (λX, ((denote S ◯ X) ⇃ b) ∪ (Id ⇃ (λs, ¬ b s)))
---ouq
 
 notation `⟦` S `⟧`:= denote S
 
---quo monotone_while_lfp_arg
 lemma monotone_while_lfp_arg (S b) :
   monotone (λX, ⟦S⟧ ◯ X ⇃ b ∪ Id ⇃ λs, ¬b s) :=
 begin
@@ -351,7 +342,6 @@ begin
   { apply sorry_lemmas.monotone_restrict,
     exact monotone_const _ }
 end
---ouq
 
 
 /-! ## Application to Program Equivalence
@@ -359,10 +349,8 @@ end
 Based on the denotational semantics, we introduce the notion of program
 equivalence: `S₁ ~ S₂`. (Compare with exercise 8.) -/
 
---quo denote_equiv_def
 def denote_equiv (S₁ S₂ : stmt) : Prop :=
 ⟦S₁⟧ = ⟦S₂⟧
---ouq
 
 infix ` ~ ` := denote_equiv
 
@@ -371,7 +359,6 @@ infix ` ~ ` := denote_equiv
 Program equivalence can be used to replace subprograms by other subprograms with
 the same semantics. This is achieved by the following congruence rules: -/
 
---quo denote_equiv_congrs
 lemma denote_equiv.seq_congr {S₁ S₂ T₁ T₂ : stmt}
     (hS : S₁ ~ S₂) (hT : T₁ ~ T₂) :
   S₁ ;; T₁ ~ S₂ ;; T₂ :=
@@ -386,14 +373,12 @@ lemma denote_equiv.while_congr {b} {S₁ S₂ : stmt}
     (hS : S₁ ~ S₂) :
   stmt.while b S₁ ~ stmt.while b S₂ :=
 by simp [denote_equiv, denote, *] at *
---ouq
 
 /-! Compare the simplicity of these proofs with the corresponding proofs for a
 big-step semantics (exercise 8).
 
 Let us prove some program equivalences. -/
 
---quo denote_equiv_simple_equivs
 lemma denote_equiv.skip_assign_id {x} :
   stmt.assign x (λs, s x) ~ stmt.skip :=
 by simp [denote_equiv, denote, Id]
@@ -405,9 +390,7 @@ by simp [denote_equiv, denote, Id, comp]
 lemma denote_equiv.seq_skip_right {S : stmt} :
   S ;; stmt.skip ~ S :=
 by simp [denote_equiv, denote, Id, comp]
---ouq
 
---quo denote_equiv.ite_seq_while
 lemma denote_equiv.ite_seq_while {b} {S : stmt} :
   stmt.ite b (S ;; stmt.while b S) stmt.skip ~ stmt.while b S :=
 begin
@@ -416,7 +399,6 @@ begin
   apply lfp_eq,
   apply monotone_while_lfp_arg
 end
---ouq
 
 
 /-! ## Equivalence of the Denotational and the Big-Step Semantics
@@ -488,17 +470,13 @@ lemma big_step_of_denote :
     apply hw
   end
 
---quo denote_iff_big_step
 lemma denote_iff_big_step (S : stmt) (s t : state) :
-  (s, t) ∈ ⟦S⟧ ↔ (S, s) ⟹ t
---ouq
-:=
+  (s, t) ∈ ⟦S⟧ ↔ (S, s) ⟹ t :=
 iff.intro (big_step_of_denote S s t) (denote_of_big_step S s t)
 
 
 /-! ## A Simpler Approach Based on an Inductive Predicate (**optional**) -/
 
---quo awhile
 inductive awhile (b : state → Prop)
     (r : set (state × state)) :
   state → state → Prop
@@ -507,20 +485,15 @@ inductive awhile (b : state → Prop)
   awhile s u
 | false {s} (hcond : ¬ b s) :
   awhile s s
---ouq
 
---quo denote_ind_def_line
 def denote_ind : stmt → set (state × state)
---ouq
 | stmt.skip         := Id
 | (stmt.assign x a) :=
   {st | prod.snd st = (prod.fst st){x ↦ a (prod.fst st)}}
 | (stmt.seq S T)    := denote_ind S ◯ denote_ind T
 | (stmt.ite b S T)  :=
   (denote_ind S ⇃ b) ∪ (denote_ind T ⇃ (λs, ¬ b s))
---quo denote_ind_last_line
 | (stmt.while b S)  :=
   {st | awhile b (denote_ind S) (prod.fst st) (prod.snd st)}
---ouq
 
 end LoVe

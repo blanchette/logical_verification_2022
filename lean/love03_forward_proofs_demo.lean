@@ -1,4 +1,4 @@
-import .love01_definitions_and_statements_demo_master
+import .love01_definitions_and_statements_demo
 
 
 /-! # LoVe Demo 3: Forward Proofs
@@ -29,11 +29,9 @@ lemma add_comm (m n : ℕ) :
   add m n = add n m :=
 sorry
 
---quo add_comm_zero_left
 lemma add_comm_zero_left (n : ℕ) :
   add 0 n = add n 0 :=
 add_comm 0 n
---ouq
 
 lemma add_comm_zero_left₂ (n : ℕ) :
   add 0 n = add n 0 :=
@@ -46,7 +44,6 @@ goal into the local context. They can be seen as structured versions of the
 `show` repeats the goal to prove. It is useful as documentation or to rephrase
 the goal (up to computation). -/
 
---quo fst_of_two_props_struct
 lemma fst_of_two_props :
   ∀a b : Prop, a → b → a :=
 fix a b : Prop,
@@ -54,7 +51,6 @@ assume ha : a,
 assume hb : b,
 show a, from
   ha
---ouq
 
 lemma fst_of_two_props₂ (a b : Prop) (ha : a) (hb : b) :
   a :=
@@ -69,7 +65,6 @@ ha
 
 /-! `have` proves an intermediate lemma, which can refer to the local context. -/
 
---quo prop_comp
 lemma prop_comp (a b c : Prop) (hab : a → b) (hbc : b → c) :
   a → c :=
 assume ha : a,
@@ -79,20 +74,16 @@ have hc : c :=
   hbc hb,
 show c, from
   hc
---ouq
 
---quo prop_comp₂
 lemma prop_comp₂ (a b c : Prop) (hab : a → b) (hbc : b → c) :
   a → c :=
 assume ha : a,
 show c, from
   hbc (hab ha)
---ouq
 
 
 /-! ## Forward Reasoning about Connectives and Quantifiers -/
 
---quo and_swap
 lemma and_swap (a b : Prop) :
   a ∧ b → b ∧ a :=
 assume hab : a ∧ b,
@@ -102,7 +93,6 @@ have hb : b :=
   and.elim_right hab,
 show b ∧ a, from
   and.intro hb ha
---ouq
 
 lemma or_swap (a b : Prop) :
   a ∨ b → b ∨ a :=
@@ -143,7 +133,6 @@ assume hna : ¬ a,
 show false, from
   hna ha
 
---quo forall.one_point
 lemma forall.one_point {α : Type} (t : α) (p : α → Prop) :
   (∀x, x = t → p x) ↔ p t :=
 iff.intro
@@ -161,17 +150,13 @@ iff.intro
        rw heq,
        exact hp
      end)
---ouq
 
---quo beast_666
 lemma beast_666 (beast : ℕ) :
   (∀n, n = 666 → beast ≥ n) ↔ beast ≥ 666 :=
 forall.one_point _ _
---ouq
 
 #print beast_666
 
---quo exists.one_point
 lemma exists.one_point {α : Type} (t : α) (p : α → Prop) :
   (∃x : α, x = t ∧ p x) ↔ p t :=
 iff.intro
@@ -187,7 +172,6 @@ iff.intro
      exists.intro t
        (show t = t ∧ p t, from
           by cc))
---ouq
 
 
 /-! ## Calculational Proofs
@@ -207,7 +191,6 @@ Syntax:
     ... _opN_ _termN_ :
       _proofN_ -/
 
---quo two_mul_example
 lemma two_mul_example (m n : ℕ) :
   2 * m + n = m + n + m :=
 calc  2 * m + n
@@ -215,12 +198,10 @@ calc  2 * m + n
   by rw two_mul
 ... = m + n + m :
   by cc
---ouq
 
 /-! `calc` saves some repetition, some `have` labels, and some transitive
 reasoning: -/
 
---quo two_mul_example₂
 lemma two_mul_example₂ (m n : ℕ) :
   2 * m + n = m + n + m :=
 have h₁ : 2 * m + n = (m + m) + n :=
@@ -229,7 +210,6 @@ have h₂ : (m + m) + n = m + n + m :=
   by cc,
 show _, from
   eq.trans h₁ h₂
---ouq
 
 
 /-! ## Forward Reasoning with Tactics
@@ -241,7 +221,6 @@ definitions in a forward fashion.
 Observe that the syntax for the tactic `let` is slightly different than for the
 structured proof command `let`, with `,` instead of `in`. -/
 
---quo prop_comp₃
 lemma prop_comp₃ (a b c : Prop) (hab : a → b) (hbc : b → c) :
   a → c :=
 begin
@@ -253,7 +232,6 @@ begin
     hbc hb,
   exact hc
 end
---ouq
 
 
 /-! ## Dependent Types
@@ -407,15 +385,12 @@ can also be done by pattern matching:
 
 #check reverse
 
---quo reverse_append
 lemma reverse_append {α : Type} :
   ∀xs ys : list α,
     reverse (xs ++ ys) = reverse ys ++ reverse xs
 | []        ys := by simp [reverse]
 | (x :: xs) ys := by simp [reverse, reverse_append xs]
---ouq
 
---quo reverse_append₂
 lemma reverse_append₂ {α : Type} (xs ys : list α) :
   reverse (xs ++ ys) = reverse ys ++ reverse xs :=
 begin
@@ -423,14 +398,11 @@ begin
   { simp [reverse] },
   { simp [reverse, ih] }
 end
---ouq
 
---quo reverse_reverse
 lemma reverse_reverse {α : Type} :
   ∀xs : list α, reverse (reverse xs) = xs
 | []        := by refl
 | (x :: xs) :=
   by simp [reverse, reverse_append, reverse_reverse xs]
---ouq
 
 end LoVe

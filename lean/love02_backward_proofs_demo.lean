@@ -1,4 +1,4 @@
-import .love01_definitions_and_statements_demo_master
+import .love01_definitions_and_statements_demo
 
 
 /-! # LoVe Demo 2: Backward Proofs
@@ -26,7 +26,6 @@ Syntax of tactical proofs:
       _tacticN_
     end -/
 
---quo fst_of_two_props
 lemma fst_of_two_props :
   ∀a b : Prop, a → b → a :=
 begin
@@ -34,7 +33,6 @@ begin
   intros ha hb,
   apply ha
 end
---ouq
 
 
 /-! ## Basic Tactics
@@ -46,13 +44,11 @@ hypotheses (before `⊢`).
 `apply` matches the goal's conclusion with the conclusion of the specified lemma
 and adds the lemma's hypotheses as new goals. -/
 
---quo fst_of_two_props₂
 lemma fst_of_two_props₂ (a b : Prop) (ha : a) (hb : b) :
   a :=
 begin
   apply ha
 end
---ouq
 
 /-! Terminal tactic syntax:
 
@@ -64,13 +60,10 @@ abbreviates
       _tactic_
     end -/
 
---quo fst_of_two_props₃
 lemma fst_of_two_props₃ (a b : Prop) (ha : a) (hb : b) :
   a :=
 by apply ha
---ouq
 
---quo prop_comp
 lemma prop_comp (a b c : Prop) (hab : a → b) (hbc : b → c) :
   a → c :=
 begin
@@ -79,7 +72,6 @@ begin
   apply hab,
   apply ha
 end
---ouq
 
 /-! `exact` matches the goal's conclusion with the specified lemma, closing the
 goal. We can often use `apply` in such situations, but `exact` communicates our
@@ -110,11 +102,9 @@ lemma α_example₂ {α β : Type} (f : α → β) :
   (λx, f x) = (λy, f y) :=
 by refl
 
---quo β_example
 lemma β_example {α β : Type} (f : α → β) (a : α) :
   (λx, f x) a = f a :=
 by refl
---ouq
 
 def double (n : ℕ) : ℕ :=
 n + n
@@ -165,7 +155,6 @@ Introduction rules: -/
 #check classical.em
 #check classical.by_contradiction
 
---quo and_swap
 lemma and_swap (a b : Prop) :
   a ∧ b → b ∧ a :=
 begin
@@ -176,12 +165,10 @@ begin
   apply and.elim_left,
   exact hab
 end
---ouq
 
 /-! The `{ … }` combinator focuses on the first subgoal. The tactic inside must
 fully prove it. -/
 
---quo and_swap₂
 lemma and_swap₂ :
   ∀a b : Prop, a ∧ b → b ∧ a :=
 begin
@@ -190,7 +177,6 @@ begin
   { exact and.elim_right hab },
   { exact and.elim_left hab }
 end
---ouq
 
 /-! Notice above how we pass the hypothesis `hab` directly to the lemmas
 `and.elim_right` and `and.elim_left`, instead of waiting for the lemmas's
@@ -234,14 +220,12 @@ begin
   exact ha
 end
 
---quo nat_exists_double_iden
 lemma nat_exists_double_iden :
   ∃n : ℕ, double n = n :=
 begin
   apply exists.intro 0,
   refl
 end
---ouq
 
 
 /-! ## Reasoning about Equality -/
@@ -253,7 +237,6 @@ end
 
 /-! The above rules can be used directly: -/
 
---quo cong_fst_arg
 lemma cong_fst_arg {α : Type} (a a' b : α)
     (f : α → α → α) (ha : a = a') :
   f a b = f a' b :=
@@ -261,9 +244,7 @@ begin
   apply eq.subst ha,
   apply eq.refl
 end
---ouq
 
---quo cong_two_args
 lemma cong_two_args {α : Type} (a a' b b' : α)
     (f : α → α → α) (ha : a = a') (hb : b = b') :
   f a b = f a' b' :=
@@ -272,12 +253,10 @@ begin
   apply eq.subst hb,
   apply eq.refl
 end
---ouq
 
 /-! `rw` applies a single equation as a left-to-right rewrite rule, once. To
 apply an equation right-to-left, prefix its name with `←`. -/
 
---quo cong_two_args₂
 lemma cong_two_args₂ {α : Type} (a a' b b' : α)
     (f : α → α → α) (ha : a = a') (hb : b = b') :
   f a b = f a' b' :=
@@ -285,7 +264,6 @@ begin
   rw ha,
   rw hb
 end
---ouq
 
 lemma a_proof_of_negation₃ (a : Prop) :
   a → ¬¬ a :=
@@ -303,12 +281,10 @@ exhaustively. The set can be extended using the `@[simp]` attribute. Lemmas can
 be temporarily added to the simp set with the syntax
 `simp [_lemma₁_, …, _lemmaN_]`. -/
 
---quo cong_two_args_etc
 lemma cong_two_args_etc {α : Type} (a a' b b' : α)
     (g : α → α → ℕ → α) (ha : a = a') (hb : b = b') :
   g a b (1 + 1) = g a' b' 2 :=
 by simp [ha, hb]
---ouq
 
 /-! `cc` applies __congruence closure__ to derive new equalities. -/
 
@@ -331,7 +307,6 @@ by cc
 `induction'` performs induction on the specified variable. It gives rise to one
 subgoal per constructor. -/
 
---quo add_zero
 lemma add_zero (n : ℕ) :
   add 0 n = n :=
 begin
@@ -339,12 +314,10 @@ begin
   { refl },
   { simp [add, ih] }
 end
---ouq
 
 /-! We use `induction'`, a variant of Lean's built-in `induction` tactic. The
 two tactics are similar, but `induction'` is more user-friendly. -/
 
---quo add_succ
 lemma add_succ (m n : ℕ) :
   add (nat.succ m) n = nat.succ (add m n) :=
 begin
@@ -352,9 +325,7 @@ begin
   { refl },
   { simp [add, ih] }
 end
---ouq
 
---quo add_comm
 lemma add_comm (m n : ℕ) :
   add m n = add n m :=
 begin
@@ -362,9 +333,7 @@ begin
   { simp [add, add_zero] },
   { simp [add, add_succ, ih] }
 end
---ouq
 
---quo add_assoc
 lemma add_assoc (l m n : ℕ) :
   add (add l m) n = add l (add m n) :=
 begin
@@ -372,21 +341,17 @@ begin
   { refl },
   { simp [add, ih] }
 end
---ouq
 
 /-! `cc` is extensible. We can register `add` as a commutative and associative
 operator using the type class instance mechanism (explained in lecture 4). This
 is useful for the `cc` invocation below. -/
 
---quo is_commutative_associative
 @[instance] def add.is_commutative : is_commutative ℕ add :=
 { comm := add_comm }
 
 @[instance] def add.is_associative : is_associative ℕ add :=
 { assoc := add_assoc }
---ouq
 
---quo mul_add
 lemma mul_add (l m n : ℕ) :
   mul l (add m n) = add (mul l m) (mul l n) :=
 begin
@@ -395,7 +360,6 @@ begin
   { simp [add, mul, ih],
     cc }
 end
---ouq
 
 
 /-! ## Cleanup Tactics

@@ -67,14 +67,12 @@ variable, `a` for an arithmetic expression, and `b` for a Boolean expression. -/
 
 #check state
 
---quo stmt
 inductive stmt : Type
 | skip   : stmt
 | assign : string → (state → ℕ) → stmt
 | seq    : stmt → stmt → stmt
 | ite    : (state → Prop) → stmt → stmt → stmt
 | while  : (state → Prop) → stmt → stmt
---ouq
 
 infixr ` ;; ` : 90 := stmt.seq
 
@@ -105,11 +103,9 @@ We will use a deep embedding of programs (which we find interesting), and
 shallow embeddings of assignments and Boolean expressions (which we find
 boring). -/
 
---quo silly_loop
 def silly_loop : stmt :=
 stmt.while (λs, s "x" > s "y")
   (stmt.skip ;; stmt.assign "x" (λs, s "x" - 1))
---ouq
 
 
 /-! ## Big-Step Semantics
@@ -165,7 +161,6 @@ predicate as opposed to a recursive function allows us to cope with
 nontermination (e.g., a diverging `while`) and nondeterminism (e.g.,
 multithreading). -/
 
---quo big_step
 inductive big_step : stmt × state → state → Prop
 | skip {s} :
   big_step (stmt.skip, s) s
@@ -186,11 +181,9 @@ inductive big_step : stmt × state → state → Prop
   big_step (stmt.while b S, s) u
 | while_false {b : state → Prop} {S s} (hcond : ¬ b s) :
   big_step (stmt.while b S, s) s
---ouq
 
 infix ` ⟹ ` : 110 := big_step
 
---quo silly_loop_from_1_big_step
 lemma silly_loop_from_1_big_step :
   (silly_loop, (λ_, 0){"x" ↦ 1}) ⟹ (λ_, 0) :=
 begin
@@ -204,7 +197,6 @@ begin
     apply big_step.while_false,
     linarith }
 end
---ouq
 
 
 /-! ## Properties of the Big-Step Semantics
@@ -217,12 +209,9 @@ Equipped with a big-step semantics, we can
 * reason about **concrete programs**, proving theorems relating final states `t`
   with initial states `s`. -/
 
---quo big_step_deterministic
 lemma big_step_deterministic {S s l r} (hl : (S, s) ⟹ l)
     (hr : (S, s) ⟹ r) :
-  l = r
---ouq
-:=
+  l = r :=
 begin
   induction' hl,
   case skip {
@@ -255,14 +244,10 @@ begin
     { refl } }
 end
 
---quo big_step_terminates
 lemma big_step_terminates {S s} :
-  ∃t, (S, s) ⟹ t
---ouq
-:=
+  ∃t, (S, s) ⟹ t :=
 sorry   -- unprovable
 
---quo big_step_doesnt_terminate
 lemma big_step_doesnt_terminate {S s t} :
   ¬ (stmt.while (λ_, true) S, s) ⟹ t :=
 begin
@@ -273,15 +258,11 @@ begin
   case while_false {
     cc }
 end
---ouq
 
 /-! We can define inversion rules about the big-step semantics: -/
 
---quo big_step_skip_iff
 @[simp] lemma big_step_skip_iff {s t} :
-  (stmt.skip, s) ⟹ t ↔ t = s
---ouq
-:=
+  (stmt.skip, s) ⟹ t ↔ t = s :=
 begin
   apply iff.intro,
   { intro h,
@@ -292,11 +273,8 @@ begin
     exact big_step.skip }
 end
 
---quo big_step_assign_iff
 @[simp] lemma big_step_assign_iff {x a s t} :
-  (stmt.assign x a, s) ⟹ t ↔ t = s{x ↦ a s}
---ouq
-:=
+  (stmt.assign x a, s) ⟹ t ↔ t = s{x ↦ a s} :=
 begin
   apply iff.intro,
   { intro h,
@@ -307,11 +285,8 @@ begin
     exact big_step.assign }
 end
 
---quo big_step_seq_iff
 @[simp] lemma big_step_seq_iff {S T s t} :
-  (S ;; T, s) ⟹ t ↔ (∃u, (S, s) ⟹ u ∧ (T, u) ⟹ t)
---ouq
-:=
+  (S ;; T, s) ⟹ t ↔ (∃u, (S, s) ⟹ u ∧ (T, u) ⟹ t) :=
 begin
   apply iff.intro,
   { intro h,
@@ -324,12 +299,9 @@ begin
     apply big_step.seq; assumption }
 end
 
---quo big_step_ite_iff
 @[simp] lemma big_step_ite_iff {b S T s t} :
   (stmt.ite b S T, s) ⟹ t ↔
-  (b s ∧ (S, s) ⟹ t) ∨ (¬ b s ∧ (T, s) ⟹ t)
---ouq
-:=
+  (b s ∧ (S, s) ⟹ t) ∨ (¬ b s ∧ (T, s) ⟹ t) :=
 begin
   apply iff.intro,
   { intro h,
@@ -344,13 +316,10 @@ begin
     { apply big_step.ite_false; assumption } }
 end
 
---quo big_step_while_iff
 lemma big_step_while_iff {b S s u} :
   (stmt.while b S, s) ⟹ u ↔
   (∃t, b s ∧ (S, s) ⟹ t ∧ (stmt.while b S, t) ⟹ u)
-  ∨ (¬ b s ∧ u = s)
---ouq
-:=
+  ∨ (¬ b s ∧ u = s) :=
 begin
   apply iff.intro,
   { intro h,
@@ -373,21 +342,15 @@ begin
       exact big_step.while_false hb } }
 end
 
---quo big_step_while_true_iff
 lemma big_step_while_true_iff {b : state → Prop} {S s u}
     (hcond : b s) :
   (stmt.while b S, s) ⟹ u ↔
-  (∃t, (S, s) ⟹ t ∧ (stmt.while b S, t) ⟹ u)
---ouq
-:=
+  (∃t, (S, s) ⟹ t ∧ (stmt.while b S, t) ⟹ u) :=
 by rw big_step_while_iff; simp [hcond]
 
---quo big_step_while_false_iff
 @[simp] lemma big_step_while_false_iff {b : state → Prop}
     {S s t} (hcond : ¬ b s) :
-  (stmt.while b S, s) ⟹ t ↔ t = s
---ouq
-:=
+  (stmt.while b S, s) ⟹ t ↔ t = s :=
 by rw big_step_while_iff; simp [hcond]
 
 
@@ -442,7 +405,6 @@ Derivation rules:
 
 There is no rule for `skip` (why?). -/
 
---quo small_step
 inductive small_step : stmt × state → stmt × state → Prop
 | assign {x a s} :
   small_step (stmt.assign x a, s) (stmt.skip, s{x ↦ a s})
@@ -457,12 +419,10 @@ inductive small_step : stmt × state → stmt × state → Prop
 | while {b : state → Prop} {S s} :
   small_step (stmt.while b S, s)
     (stmt.ite b (S ;; stmt.while b S) stmt.skip, s)
---ouq
 
 infixr ` ⇒ ` := small_step
 infixr ` ⇒* ` : 100 := star small_step
 
---quo silly_loop_from_1_small_step
 lemma silly_loop_from_1_small_step :
   (silly_loop, (λ_, 0){"x" ↦ 1}) ⇒*
   (stmt.skip, ((λ_, 0) : state)) :=
@@ -488,7 +448,6 @@ begin
                 simp },
               { simp } } } } } } }
 end
---ouq
 
 /-! Equipped with a small-step semantics, we can **define** a big-step
 semantics:
@@ -509,11 +468,8 @@ The main disadvantage of small-step semantics is that we now have two relations,
 We can prove that a configuration `(S, s)` is final if and only if `S = skip`.
 This ensures that we have not forgotten a derivation rule. -/
 
---quo small_step_final
 lemma small_step_final (S s) :
-  (¬ ∃T t, (S, s) ⇒ (T, t)) ↔ S = stmt.skip
---ouq
-:=
+  (¬ ∃T t, (S, s) ⇒ (T, t)) ↔ S = stmt.skip :=
 begin
   induction' S,
   case skip {
@@ -558,12 +514,9 @@ begin
     exact small_step.while }
 end
 
---quo small_step_deterministic
 lemma small_step_deterministic {S s Ll Rr}
     (hl : (S, s) ⇒ Ll) (hr : (S, s) ⇒ Rr) :
-  Ll = Rr
---ouq
-:=
+  Ll = Rr :=
 begin
   induction' hl,
   case assign : x a s {
@@ -602,20 +555,14 @@ end
 /-! We can define inversion rules also about the small-step semantics. Here are
 three examples: -/
 
---quo small_step_skip
 lemma small_step_skip {S s t} :
-  ¬ ((stmt.skip, s) ⇒ (S, t))
---ouq
-:=
+  ¬ ((stmt.skip, s) ⇒ (S, t)) :=
 by intro h; cases' h
 
---quo small_step_seq_iff
 @[simp] lemma small_step_seq_iff {S T s Ut} :
   (S ;; T, s) ⇒ Ut ↔
   (∃S' t, (S, s) ⇒ (S', t) ∧ Ut = (S' ;; T, t))
-  ∨ (S = stmt.skip ∧ Ut = (T, s))
---ouq
-:=
+  ∨ (S = stmt.skip ∧ Ut = (T, s)) :=
 begin
   apply iff.intro,
   { intro h,
@@ -640,12 +587,9 @@ begin
       apply small_step.seq_skip } }
 end
 
---quo small_step_ite_iff
 @[simp] lemma small_step_ite_iff {b S T s Us} :
   (stmt.ite b S T, s) ⇒ Us ↔
-  (b s ∧ Us = (S, s)) ∨ (¬ b s ∧ Us = (T, s))
---ouq
-:=
+  (b s ∧ Us = (S, s)) ∨ (¬ b s ∧ Us = (T, s)) :=
 begin
   apply iff.intro,
   { intro h,
@@ -743,18 +687,14 @@ begin
     refl }
 end
 
---quo big_step_iff_star_small_step
 lemma big_step_iff_star_small_step {S s t} :
-  (S, s) ⟹ t ↔ (S, s) ⇒* (stmt.skip, t)
---ouq
-:=
+  (S, s) ⟹ t ↔ (S, s) ⇒* (stmt.skip, t) :=
 iff.intro star_small_step_of_big_step
   big_step_of_star_small_step
 
 
 /-! ## Parallelism (**optional**) -/
 
---quo par_step
 inductive par_step :
     nat → list stmt × state → list stmt × state → Prop
 | intro {Ss Ss' S S' s s' i}
@@ -763,9 +703,7 @@ inductive par_step :
     (hs : (S, s) ⇒ (S', s'))
     (hS' : Ss' = list.update_nth Ss i S') :
   par_step i (Ss, s) (Ss', s')
---ouq
 
---quo par_step_diamond
 lemma par_step_diamond {i j Ss Ts Ts' s t t'}
     (hi : i < list.length Ss)
     (hj : j < list.length Ss)
@@ -773,12 +711,9 @@ lemma par_step_diamond {i j Ss Ts Ts' s t t'}
     (hT : par_step i (Ss, s) (Ts, t))
     (hT' : par_step j (Ss, s) (Ts', t')) :
   ∃u Us, par_step j (Ts, t) (Us, u) ∧
-    par_step i (Ts', t') (Us, u)
---ouq
-:=
+    par_step i (Ts', t') (Us, u) :=
 sorry   -- unprovable
 
---quo stmt.W_etc
 def stmt.W : stmt → set string
 | stmt.skip         := ∅
 | (stmt.assign x _) := {x}
@@ -798,9 +733,7 @@ def stmt.R : stmt → set string
 
 def stmt.V : stmt → set string
 | S := stmt.W S ∪ stmt.R S
---ouq
 
---quo par_step_diamond_VW_disjoint
 lemma par_step_diamond_VW_disjoint {i j Ss Ts Ts' s t t'}
     (hiS : i < list.length Ss)
     (hjT : j < list.length Ts)
@@ -812,9 +745,7 @@ lemma par_step_diamond_VW_disjoint {i j Ss Ts Ts' s t t'}
     (hVW : stmt.V (list.nth_le Ss i hiS)
        ∩ stmt.W (list.nth_le Ts j hjT) = ∅) :
   ∃u Us, par_step j (Ts, t) (Us, u) ∧
-    par_step i (Ts', t') (Us, u)
---ouq
-:=
+    par_step i (Ts', t') (Us, u) :=
 sorry   -- this should be provable
 
 end LoVe

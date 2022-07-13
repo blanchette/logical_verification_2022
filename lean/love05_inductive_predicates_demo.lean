@@ -1,5 +1,5 @@
-import .love03_forward_proofs_demo_master
-import .love04_functional_programming_demo_master
+import .love03_forward_proofs_demo
+import .love04_functional_programming_demo
 
 
 /-! # LoVe Demo 5: Inductive Predicates
@@ -33,11 +33,9 @@ example:
 
 In Lean, we can define the corresponding "is even" predicate as follows: -/
 
---quo even
 inductive even : ℕ → Prop
 | zero    : even 0
 | add_two : ∀k : ℕ, even k → even (k + 2)
---ouq
 
 /-! This should look familiar. We have used the same syntax, except with `Type`
 instead of `Prop`, for inductive types.
@@ -50,7 +48,6 @@ and `even.add_two` are the only two ways to construct proofs of `even`.
 By the PAT principle, `even` can be seen as an inductive type, the values being
 the proof terms. -/
 
---quo even_4
 lemma even_4 :
   even 4 :=
 have even_0 : even 0 :=
@@ -59,16 +56,13 @@ have even_2 : even 2 :=
   even.add_two _ even_0,
 show even 4, from
   even.add_two _ even_2
---ouq
 
 /-! Why cannot we simply define `even` recursively? Indeed, why not? -/
 
---quo even₂
 def even₂ : ℕ → bool
 | 0       := tt
 | 1       := ff
 | (k + 2) := even₂ k
---ouq
 
 /-! There are advantages and disadvantages to both styles.
 
@@ -81,10 +75,8 @@ is stated independently of the others.
 
 Yet another way to define `even` is as a nonrecursive definition: -/
 
---quo even₃
 def even₃ (k : ℕ) : bool :=
 k % 2 = 0
---ouq
 
 /-! Mathematicians would probably find this the most satisfactory definition.
 But the inductive version is a convenient, intuitive example that is typical of
@@ -98,18 +90,15 @@ binary predicate connecting a "before" and an "after" state. As a simple
 specimen of a transition system, we consider the possible transitions, in a game
 of tennis, starting from 0–0. -/
 
---quo score
 inductive score : Type
 | vs       : ℕ → ℕ → score
 | adv_srv  : score
 | adv_rcv  : score
 | game_srv : score
 | game_rcv : score
---ouq
 
 infixr ` – ` : 10 := score.vs
 
---quo step
 inductive step : score → score → Prop
 | srv_0_15     : ∀n, step (0–n) (15–n)
 | srv_15_30    : ∀n, step (15–n) (30–n)
@@ -125,21 +114,18 @@ inductive step : score → score → Prop
 | rcv_40_adv   : step (40–40) score.adv_rcv
 | rcv_adv_40   : step score.adv_rcv (40–40)
 | rcv_adv_game : step score.adv_rcv score.game_rcv
---ouq
 
 infixr ` ⇒ ` := step
 
 /-! We can ask, and formally answer, questions such as: Can the score ever
 return to 0–0? -/
 
---quo no_step_to_0_0
 lemma no_step_to_0_0 (s : score) :
   ¬ step s (0–0) :=
 begin
   intro h,
   cases' h
 end
---ouq
 
 
 /-! ### Reflexive Transitive Closure
@@ -147,12 +133,10 @@ end
 Our last introductory example is the reflexive transitive closure of a
 relation `r`, modeled as a binary predicate `star r`. -/
 
---quo star
 inductive star {α : Type} (r : α → α → Prop) : α → α → Prop
 | base (a b : α)    : r a b → star a b
 | refl (a : α)      : star a a
 | trans (a b c : α) : star a b → star b c → star a c
---ouq
 
 /-! The first rule embeds `r` into `star r`. The second rule achieves the
 reflexive closure. The third rule achieves the transitive closure.
@@ -160,10 +144,8 @@ reflexive closure. The third rule achieves the transitive closure.
 The definition is truly elegant. If you doubt this, try implementing `star` as a
 recursive function: -/
 
---quo star_rec
 def star_rec {α : Type} (r : α → α → bool) :
   α → α → bool :=
---ouq
 sorry
 
 
@@ -171,13 +153,9 @@ sorry
 
 Not all inductive definitions are legal. -/
 
-/-fails
---quo illegal₂
 -- fails
 inductive illegal₂ : Prop
 | intro : ¬ illegal₂ → illegal₂
---ouq
-sliaf-/
 
 
 /-! ## Logical Symbols
@@ -194,7 +172,6 @@ Syntactic sugar:
 
 namespace logical_symbols
 
---quo logical_symbols
 inductive and (a b : Prop) : Prop
 | intro : a → b → and
 
@@ -215,7 +192,6 @@ inductive false : Prop
 
 inductive eq {α : Type} : α → α → Prop
 | refl : ∀a : α, eq a a
---ouq
 
 end logical_symbols
 
@@ -237,7 +213,6 @@ This is called __rule induction__, because the induction is on the introduction
 rules (i.e., the constructors of the proof term). Thanks to the PAT principle,
 this works as expected. -/
 
---quo mod_two_eq_zero_of_even
 lemma mod_two_eq_zero_of_even (n : ℕ) (h : even n) :
   n % 2 = 0 :=
 begin
@@ -247,9 +222,7 @@ begin
   case add_two : k hk ih {
     simp [ih] }
 end
---ouq
 
---quo not_even_two_mul_add_one
 lemma not_even_two_mul_add_one (n : ℕ) :
   ¬ even (2 * n + 1) :=
 begin
@@ -263,7 +236,6 @@ begin
     simp [nat.succ_eq_add_one] at *,
     linarith }
 end
---ouq
 
 /-! `linarith` proves goals involving linear arithmetic equalities or
 inequalities. "Linear" means it works only with `+` and `-`, not `*` and `/`
@@ -273,7 +245,6 @@ lemma linarith_example (i : ℤ) (hi : i > 5) :
   2 * i + 3 > 11 :=
 by linarith
 
---quo star_star_iff_star
 lemma star_star_iff_star {α : Type} (r : α → α → Prop)
     (a b : α) :
   star (star r) a b ↔ star r a b :=
@@ -293,9 +264,7 @@ begin
     apply star.base,
     exact h }
 end
---ouq
 
---quo star_star_eq_star
 @[simp] lemma star_star_eq_star {α : Type}
     (r : α → α → Prop) :
   star (star r) = star r :=
@@ -307,7 +276,6 @@ begin
   apply propext,
   apply star_star_iff_star
 end
---ouq
 
 #check funext
 #check propext
@@ -370,7 +338,6 @@ which can be used for rewriting both the hypotheses and conclusions of goals:
 
     `∀x y, p (c x y) ↔ (∃…, ⋯ ∧ ⋯) ∨ ⋯ ∨ (∃…, ⋯ ∧ ⋯)` -/
 
---quo even_iff
 lemma even_iff (n : ℕ) :
   even n ↔ n = 0 ∨ (∃m : ℕ, n = m + 2 ∧ even m) :=
 begin
@@ -392,9 +359,7 @@ begin
       cases' hand with heq hk,
       simp [heq, even.add_two _ hk] } }
 end
---ouq
 
---quo even_iff₂
 lemma even_iff₂ (n : ℕ) :
   even n ↔ n = 0 ∨ (∃m : ℕ, n = m + 2 ∧ even m) :=
 iff.intro
@@ -422,21 +387,18 @@ iff.intro
        end
      end
    end)
---ouq
 
 
 /-! ## Further Examples
 
 ### Sorted Lists -/
 
---quo sorted
 inductive sorted : list ℕ → Prop
 | nil : sorted []
 | single {x : ℕ} : sorted [x]
 | two_or_more {x y : ℕ} {zs : list ℕ} (hle : x ≤ y)
     (hsorted : sorted (y :: zs)) :
   sorted (x :: y :: zs)
---ouq sorted
 
 lemma sorted_nil :
   sorted [] :=
@@ -446,7 +408,6 @@ lemma sorted_2 :
   sorted [2] :=
 sorted.single
 
---quo sorted_3_5
 lemma sorted_3_5 :
   sorted [3, 5] :=
 begin
@@ -454,24 +415,18 @@ begin
   { linarith },
   { exact sorted.single }
 end
---ouq
 
---quo sorted_3_5₂
 lemma sorted_3_5₂ :
   sorted [3, 5] :=
 sorted.two_or_more (by linarith) sorted.single
---ouq
 
---quo sorted_7_9_9_11
 lemma sorted_7_9_9_11 :
   sorted [7, 9, 9, 11] :=
 sorted.two_or_more (by linarith)
   (sorted.two_or_more (by linarith)
      (sorted.two_or_more (by linarith)
         sorted.single))
---ouq
 
---quo not_sorted_17_13
 lemma not_sorted_17_13 :
   ¬ sorted [17, 13] :=
 begin
@@ -479,29 +434,22 @@ begin
   cases' h,
   linarith
 end
---ouq
 
 
 /-! ### Palindromes -/
 
---quo palindrome
 inductive palindrome {α : Type} : list α → Prop
 | nil : palindrome []
 | single (x : α) : palindrome [x]
 | sandwich (x : α) (xs : list α) (hxs : palindrome xs) :
   palindrome ([x] ++ xs ++ [x])
---ouq
 
-/-fails
---quo palindrome₂
 -- fails
 def palindrome₂ {α : Type} : list α → bool
 | []                 := tt
 | [_]                := tt
 | ([x] ++ xs ++ [x]) := palindrome₂ xs
 | _                  := ff
---ouq
-sliaf-/
 
 lemma palindrome_aa {α : Type} (a : α) :
   palindrome [a, a] :=
@@ -511,7 +459,6 @@ lemma palindrome_aba {α : Type} (a b : α) :
   palindrome [a, b, a] :=
 palindrome.sandwich a _ (palindrome.single b)
 
---quo reverse_palindrome
 lemma reverse_palindrome {α : Type} (xs : list α)
     (hxs : palindrome xs) :
   palindrome (reverse xs) :=
@@ -525,23 +472,19 @@ begin
     simp [reverse, reverse_append],
     exact palindrome.sandwich _ _ ih }
 end
---ouq
 
 
 /-! ### Full Binary Trees -/
 
 #check btree
 
---quo is_full
 inductive is_full {α : Type} : btree α → Prop
 | empty : is_full btree.empty
 | node (a : α) (l r : btree α)
     (hl : is_full l) (hr : is_full r)
     (hiff : l = btree.empty ↔ r = btree.empty) :
   is_full (btree.node a l r)
---ouq
 
---quo is_full_singleton
 lemma is_full_singleton {α : Type} (a : α) :
   is_full (btree.node a btree.empty btree.empty) :=
 begin
@@ -550,9 +493,7 @@ begin
   { exact is_full.empty },
   { refl }
 end
---ouq
 
---quo is_full_mirror
 lemma is_full_mirror {α : Type} (t : btree α)
     (ht : is_full t) :
   is_full (mirror t) :=
@@ -567,9 +508,7 @@ begin
     { exact ih_l },
     { simp [mirror_eq_empty_iff, *] } }
 end
---ouq
 
---quo is_full_mirror₂
 lemma is_full_mirror₂ {α : Type} (t : btree α) :
   is_full t → is_full (mirror t) :=
 begin
@@ -586,18 +525,14 @@ begin
     { apply ih_l hl },
     { simp [mirror_eq_empty_iff, *] } }
 end
---ouq
 
 
 /-! ### First-Order Terms -/
 
---quo term
 inductive term (α β : Type) : Type
 | var : β → term
 | fn  : α → list term → term
---ouq
 
---quo well_formed
 inductive well_formed {α β : Type} (arity : α → ℕ) :
   term α β → Prop
 | var (x : β) : well_formed (term.var x)
@@ -605,13 +540,10 @@ inductive well_formed {α β : Type} (arity : α → ℕ) :
     (hargs : ∀t ∈ ts, well_formed t)
     (hlen : list.length ts = arity f) :
   well_formed (term.fn f ts)
---ouq
 
---quo variable_free
 inductive variable_free {α β : Type} : term α β → Prop
 | fn (f : α) (ts : list (term α β))
     (hargs : ∀t ∈ ts, variable_free t) :
   variable_free (term.fn f ts)
---ouq
 
 end LoVe

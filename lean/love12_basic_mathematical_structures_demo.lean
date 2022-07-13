@@ -1,4 +1,4 @@
-import .love05_inductive_predicates_demo_master
+import .love05_inductive_predicates_demo
 
 
 /-! # LoVe Demo 12: Basic Mathematical Structures
@@ -33,7 +33,6 @@ In Lean, a type class for groups can be defined as follows: -/
 
 namespace monolithic_group
 
---quo group
 @[class] structure group (α : Type) :=
 (mul          : α → α → α)
 (one          : α)
@@ -41,7 +40,6 @@ namespace monolithic_group
 (mul_assoc    : ∀a b c, mul (mul a b) c = mul a (mul b c))
 (one_mul      : ∀a, mul one a = a)
 (mul_left_inv : ∀a, mul (inv a) a = one)
---ouq
 
 end monolithic_group
 
@@ -76,20 +74,15 @@ Type class                   | Properties                                   | Ex
 /-! Let us define our own type, of integers modulo 2, and register it as an
 additive group. -/
 
---quo int2
 inductive int2 : Type
 | zero
 | one
---ouq
 
---quo int2_add
 def int2.add : int2 → int2 → int2
 | int2.zero a         := a
 | int2.one  int2.zero := int2.one
 | int2.one  int2.one  := int2.zero
---ouq
 
---quo int2_add_group
 @[instance] def int2.add_group : add_group int2 :=
 { add          := int2.add,
   add_assoc    :=
@@ -99,21 +92,15 @@ def int2.add : int2 → int2 → int2
   add_zero     := by intro a; cases' a; refl,
   neg          := λa, a,
   add_left_neg := by intro a; cases' a; refl }
---ouq
 
---quo int2_notation
 #reduce int2.one + 0 - 0 - int2.one
---ouq
 
---quo int2_lemmas
 lemma int2.add_right_neg:
   ∀a : int2, a + - a = 0 :=
 add_right_neg
---ouq
 
 /-! Another example: Lists are an `add_monoid`: -/
 
---quo list_add_monoid
 @[instance] def list.add_monoid {α : Type} :
   add_monoid (list α) :=
 { zero      := [],
@@ -121,7 +108,6 @@ add_right_neg
   add_assoc := list.append_assoc,
   zero_add  := list.nil_append,
   add_zero  := list.append_nil }
---ouq
 
 
 /-! ## Type Classes with Two Binary Operators
@@ -151,13 +137,10 @@ Type class       |  Properties                                         | Example
 
 /-! Let us continue with our example: -/
 
---quo int2_mul
 def int2.mul : int2 → int2 → int2
 | int2.one  a := a
 | int2.zero _ := int2.zero
---ouq
 
---quo int2_field
 @[instance] def int2.field : field int2 :=
 { one            := int2.one,
   mul            := int2.mul,
@@ -177,17 +160,11 @@ def int2.mul : int2 → int2 → int2
   right_distrib  :=
     by intros a b c; cases' a; cases' b; cases' c; refl,
   ..int2.add_group }
---ouq
 
---quo int2_reduce_1
 #reduce (1 : int2) * 0 / (0 - 1)
---ouq
 
---quo int2_reduce_3
 #reduce (3 : int2)
---ouq
 
---quo ring_example
 lemma ring_example (a b : int2) :
   (a + b) ^ 3 = a ^ 3 + 3 * a ^ 2 * b + 3 * a * b ^ 2 + b ^ 3 :=
 by ring
@@ -196,16 +173,13 @@ lemma ring_exp_example (a b : int2) (n : ℕ):
   (a + b) ^ (2 + n) =
   (a + b) ^ n * (a ^ 2 + 2 * a * b + b ^ 2) :=
 by ring_exp
---ouq
 
 /-! `ring` and `ring_exp` prove equalities over commutative rings and semirings
 by normalizing expressions. The `ring_exp` variant also normalizes exponents. -/
 
---quo abel_example
 lemma abel_example (a b : int2) :
   a + b + 0 - (b + a + a) = - a :=
 by abel
---ouq
 
 /-! `abel` proves equalities over additive commutative monoids and groups by
 normalizing expressions.
@@ -227,11 +201,9 @@ Many coercions are already in place, including the following:
 For example, this works, although negation `- n` is not defined on natural
 numbers: -/
 
---quo neg_mul_neg_nat
 lemma neg_mul_neg_nat (n : ℕ) (z : ℤ) :
   (- z) * (- n) = z * n :=
 neg_mul_neg z n
---ouq
 
 /-! Notice how Lean introduced a `↑` coercion: -/
 
@@ -239,30 +211,24 @@ neg_mul_neg z n
 
 /-! Another example, where a cast is necessary: -/
 
---quo neg_nat_mul_neg
 lemma neg_nat_mul_neg (n : ℕ) (z : ℤ) :
   (- n : ℤ) * (- z) = n * z :=
 neg_mul_neg n z
---ouq
 
 #print neg_nat_mul_neg
 
 /-! In proofs involving coercions, the tactic `norm_cast` can be convenient. -/
 
---quo norm_cast_example_1
 lemma norm_cast_example_1 (m n : ℕ) (h : (m : ℤ) = (n : ℤ)) :
   m = n :=
 begin
   norm_cast at h,
   exact h
 end
---ouq
 
---quo norm_cast_example_2
 lemma norm_cast_example_2 (m n : ℕ) :
   (m : ℤ) + (n : ℤ) = ((m + n : ℕ) : ℤ) :=
 by norm_cast
---ouq
 
 #check norm_cast_example_2
 
@@ -311,26 +277,19 @@ dec_trivial
 /-! `dec_trivial` is a special lemma that can be used on trivial decidable
 goals (e.g., true closed executable expressions). -/
 
---quo list.elems
 def list.elems : btree ℕ → list ℕ
 | btree.empty        := []
 | (btree.node a l r) := a :: list.elems l ++ list.elems r
---ouq
 
---quo multiset.elems
 def multiset.elems : btree ℕ → multiset ℕ
 | btree.empty        := ∅
 | (btree.node a l r) :=
   {a} ∪ (multiset.elems l ∪ multiset.elems r)
---ouq
 
---quo finset.elems
 def finset.elems : btree ℕ → finset ℕ
 | btree.empty        := ∅
 | (btree.node a l r) := {a} ∪ (finset.elems l ∪ finset.elems r)
---ouq
 
---quo sum_prod
 #eval list.sum [2, 3, 4]                          -- result: 9
 #eval multiset.sum ({2, 3, 4} : multiset ℕ)       -- result: 9
 #eval finset.sum ({2, 3, 4} : finset ℕ) (λn, n)   -- result: 9
@@ -338,7 +297,6 @@ def finset.elems : btree ℕ → finset ℕ
 #eval list.prod [2, 3, 4]                         -- result: 24
 #eval multiset.prod ({2, 3, 4} : multiset ℕ)      -- result: 24
 #eval finset.prod ({2, 3, 4} : finset ℕ) (λn, n)  -- result: 24
---ouq
 
 
 /-! ## Order Type Classes
@@ -346,11 +304,9 @@ def finset.elems : btree ℕ → finset ℕ
 Many of the structures introduced above can be ordered. For example, the
 well-known order on the natural numbers can be defined as follows: -/
 
---quo nat.le
 inductive nat.le : ℕ → ℕ → Prop
 | refl : ∀a : ℕ, nat.le a a
 | step : ∀a b : ℕ, nat.le a b → nat.le a (b + 1)
---ouq
 
 /-! This is an example of a linear order. A __linear order__ (or
 __total order__) is a binary relation `≤` such that for all `a`, `b`, `c`, the
@@ -385,22 +341,18 @@ and `linear_order` also has
 We can declare the preorder on lists that compares lists by their length as
 follows: -/
 
---quo list.length.preord
 @[instance] def list.length.preord {α : Type} :
   preorder (list α) :=
 { le       := λxs ys, list.length xs ≤ list.length ys,
   le_refl  := by intro xs; exact nat.le_refl _,
   le_trans := by intros xs ys zs; exact nat.le_trans }
---ouq
 
 /-! This instance introduces the infix syntax `≤` and the relations `≥`, `<`,
 and `>`: -/
 
---quo list.length.preord_example
 lemma list.length.preord_example {α : Type} (c : α) :
   [c] > [] :=
 dec_trivial
---ouq
 
 /-! Complete lattices (lecture 10) are formalized as another type class,
 `complete_lattice`, which inherits from `partial_order`.

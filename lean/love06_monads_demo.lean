@@ -30,7 +30,6 @@ Consider the following programming task:
 
 A straightforward solution follows: -/
 
---quo sum_2_5_7
 def sum_2_5_7 (ns : list ℕ) : option ℕ :=
 match list.nth ns 1 with
 | option.none    := option.none
@@ -44,39 +43,32 @@ match list.nth ns 1 with
     end
   end
 end
---ouq
 
 /-! The code is ugly, because of all the pattern matching on options.
 
 We can put all the ugliness in one function, which we call `connect`: -/
 
---quo connect
 def connect {α : Type} {β : Type} :
   option α → (α → option β) → option β
 | option.none     f := option.none
 | (option.some a) f := f a
---ouq
 
---quo sum_2_5_7₂
 def sum_2_5_7₂ (ns : list ℕ) : option ℕ :=
 connect (list.nth ns 1)
   (λn2, connect (list.nth ns 4)
      (λn5, connect (list.nth ns 6)
         (λn7, option.some (n2 + n5 + n7))))
---ouq
 
 /-! Instead of defining `connect` ourselves, we can use Lean's predefined
 general `bind` operation. We can also use `pure` instead of `option.some`: -/
 
 #check bind
 
---quo sum_2_5_7₃
 def sum_2_5_7₃ (ns : list ℕ) : option ℕ :=
 bind (list.nth ns 1)
   (λn2, bind (list.nth ns 4)
      (λn5, bind (list.nth ns 6)
         (λn7, pure (n2 + n5 + n7))))
---ouq
 
 /-! Syntactic sugar:
 
@@ -84,37 +76,31 @@ bind (list.nth ns 1)
 
 #check (>>=)
 
---quo sum_2_5_7₄
 def sum_2_5_7₄ (ns : list ℕ) : option ℕ :=
 list.nth ns 1 >>=
   λn2, list.nth ns 4 >>=
     λn5, list.nth ns 6 >>=
       λn7, pure (n2 + n5 + n7)
---ouq
 
 /-! Syntactic sugar:
 
     `do a ← ma, t` := `ma >>= (λa, t)`
     `do ma, t`     := `ma >>= (λ_, t)` -/
 
---quo sum_2_5_7₅
 def sum_2_5_7₅ (ns : list ℕ) : option ℕ :=
 do n2 ← list.nth ns 1,
   do n5 ← list.nth ns 4,
     do n7 ← list.nth ns 6,
       pure (n2 + n5 + n7)
---ouq
 
 /-! The `do`s can be combined: -/
 
---quo sum_2_5_7₆
 def sum_2_5_7₆ (ns : list ℕ) : option ℕ :=
 do
   n2 ← list.nth ns 1,
   n5 ← list.nth ns 4,
   n7 ← list.nth ns 6,
   pure (n2 + n5 + n7)
---ouq
 
 /-! Although the notation has an imperative flavor, the function is a pure
 functional program.
@@ -219,7 +205,6 @@ Monads are a mathematical structure, so we use class to add them as a type
 class. We can think of a type class as a structure that is parameterized by a
 type—or here, by a type constructor `m : Type → Type`. -/
 
---quo lawful_monad
 @[class] structure lawful_monad (m : Type → Type)
   extends has_bind m, has_pure m :=
 (pure_bind {α β : Type} (a : α) (f : α → m β) :
@@ -229,7 +214,6 @@ type—or here, by a type constructor `m : Type → Type`. -/
 (bind_assoc {α β γ : Type} (f : α → m β) (g : β → m γ)
      (ma : m α) :
    ((ma >>= f) >>= g) = (ma >>= (λa, f a >>= g)))
---ouq
 
 #print monad
 #print is_lawful_monad
@@ -254,7 +238,6 @@ laws.
 
 Our first monad is the trivial monad `m := id` (i.e., `m := λα. α`). -/
 
---quo id_monad
 def id.pure {α : Type} : α → id α :=
 id
 
@@ -282,14 +265,12 @@ def id.bind {α β : Type} : id α → (α → id β) → id β
       simp [(>>=)],
       refl
     end }
---ouq
 
 
 /-! ## Basic Exceptions
 
 As we saw above, the option type provides a basic exception mechanism. -/
 
---quo option_monad
 def option.pure {α : Type} : α → option α :=
 option.some
 
@@ -323,9 +304,7 @@ def option.bind {α β : Type} :
       { refl },
       { refl }
     end }
---ouq
 
---quo option_throw_catch
 def option.throw {α : Type} : option α :=
 option.none
 
@@ -333,12 +312,9 @@ def option.catch {α : Type} :
   option α → option α → option α
 | option.none     ma' := ma'
 | (option.some a) _   := option.some a
---ouq
 
---quo option_has_orelse
 @[instance] def option.has_orelse : has_orelse option :=
 { orelse := @option.catch }
---ouq
 
 
 /-! ## Mutable State
@@ -346,12 +322,9 @@ def option.catch {α : Type} :
 The state monad provides an abstraction corresponding to a mutable state. Some
 compiler recognize the state monad to produce efficient imperative code. -/
 
---quo action
 def action (σ α : Type) : Type :=
 σ → α × σ
---ouq
 
---quo action_monad_defs
 def action.read {σ : Type} : action σ σ
 | s := (s, s)
 
@@ -368,9 +341,7 @@ def action.bind {σ : Type} {α β : Type} (ma : action σ α)
   match ma s with
   | (a, s') := f a s'
   end
---ouq
 
---quo action_monad_register
 @[instance] def action.lawful_monad {σ : Type} :
   lawful_monad (action σ) :=
 { pure       := @action.pure σ,
@@ -403,9 +374,7 @@ def action.bind {σ : Type} {α β : Type} (ma : action σ α)
       cases' ma s,
       refl
     end }
---ouq
 
---quo increasingly
 def increasingly : list ℕ → action ℕ (list ℕ)
 | []        := pure []
 | (n :: ns) :=
@@ -418,12 +387,9 @@ def increasingly : list ℕ → action ℕ (list ℕ)
         action.write n,
         ns' ← increasingly ns,
         pure (n :: ns')
---ouq
 
---quo increasingly_eval
 #eval increasingly [1, 2, 3, 2] 0
 #eval increasingly [1, 2, 3, 2, 4, 5, 2] 0
---ouq
 
 
 /-! ## Nondeterminism
@@ -432,7 +398,6 @@ The set monad stores an arbitrary, possibly infinite number of `α` values. -/
 
 #check set
 
---quo set_monad
 def set.pure {α : Type} : α → set α
 | a := {a}
 
@@ -463,7 +428,6 @@ def set.bind {α β : Type} : set α → (α → set β) → set β
       simp,
       tautology
     end }
---ouq
 
 /-! `tautology` performs elimination of the logical symbols `∧`, `∨`, `↔`, and
 `∃` in hypotheses and introduction of `∧`, `↔`, and `∃` in the conclusion, until
@@ -475,18 +439,13 @@ all the emerging subgoals can be trivially proved (e.g., by `refl`).
 We consider a generic effectful program `mmap` that iterates over a list and
 applies a function `f` to each element. -/
 
---quo nths_fine
 def nths_fine {α : Type} (xss : list (list α)) (n : ℕ) :
   list (option α) :=
 list.map (λxs, list.nth xs n) xss
---ouq
 
---quo nths_fine_eval
 #eval nths_fine [[11, 12, 13, 14], [21, 22, 23]] 2
---ouq
 #eval nths_fine [[11, 12, 13, 14], [21, 22, 23]] 3
 
---quo mmap_def
 def mmap {m : Type → Type} [lawful_monad m] {α β : Type}
     (f : α → m β) :
   list α → m (list β)
@@ -496,20 +455,14 @@ def mmap {m : Type → Type} [lawful_monad m] {α β : Type}
     b ← f a,
     bs ← mmap as,
     pure (b :: bs)
---ouq
 
---quo nths_coarse
 def nths_coarse {α : Type} (xss : list (list α)) (n : ℕ) :
   option (list α) :=
 mmap (λxs, list.nth xs n) xss
---ouq
 
---quo nths_coarse_eval
 #eval nths_coarse [[11, 12, 13, 14], [21, 22, 23]] 2
---ouq
 #eval nths_coarse [[11, 12, 13, 14], [21, 22, 23]] 3
 
---quo mmap_append
 lemma mmap_append {m : Type → Type} [lawful_monad m]
     {α β : Type} (f : α → m β) :
   ∀as as' : list α, mmap f (as ++ as') =
@@ -522,6 +475,5 @@ lemma mmap_append {m : Type → Type} [lawful_monad m]
 | (a :: as) as' :=
   by simp [mmap, mmap_append as as', lawful_monad.pure_bind,
     lawful_monad.bind_assoc]
---ouq
 
 end LoVe

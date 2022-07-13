@@ -201,23 +201,17 @@ Application is left-associative: `f x y z` = `((f x) y) z`. -/
 #check λf : ℕ → ℕ, λg : ℕ → ℕ, λh : ℕ → ℕ, λx : ℕ, h (g (f x))
 #check λ(f g h : ℕ → ℕ) (x : ℕ), h (g (f x))
 
---quo abfg_def
 constants a b : ℤ
 constant f : ℤ → ℤ
 constant g : ℤ → ℤ → ℤ
---ouq
 
---quo abfg_check
 #check λx : ℤ, g (f (g a x)) (g x b)
 #check λx, g (f (g a x)) (g x b)
---ouq
 
 #check λx, x
 
---quo trool
 constant trool : Type
 constants trool.true trool.false trool.maybe : trool
---ouq
 
 
 /-! ### Type Checking and Type Inference
@@ -278,11 +272,9 @@ namespace my_nat
 /-! Definition of type `nat` (= `ℕ`) of natural numbers, using Peano-style unary
 notation: -/
 
---quo nat_def
 inductive nat : Type
 | zero : nat
 | succ : nat → nat
---ouq
 
 #check nat
 #check nat.zero
@@ -296,7 +288,6 @@ end my_nat
 
 /-! ### Arithmetic Expressions -/
 
---quo aexp_def
 inductive aexp : Type
 | num : ℤ → aexp
 | var : string → aexp
@@ -304,23 +295,18 @@ inductive aexp : Type
 | sub : aexp → aexp → aexp
 | mul : aexp → aexp → aexp
 | div : aexp → aexp → aexp
---ouq
 
 
 /-! ### Lists -/
 
 namespace my_list
 
---quo list_def
 inductive list (α : Type) : Type
 | nil  : list
 | cons : α → list → list
---ouq
 
---quo check_list
 #check list.nil
 #check list.cons
---ouq
 
 end my_list
 
@@ -333,71 +319,52 @@ The syntax for defining a function operating on an inductive type is very
 compact: We define a single function and use __pattern matching__ to extract the
 arguments to the constructors. -/
 
---quo add_def
 def add : ℕ → ℕ → ℕ
 | m nat.zero     := m
 | m (nat.succ n) := nat.succ (add m n)
---ouq
 
---quo eval_reduce_add
 #eval add 2 7
 #reduce add 2 7
---ouq
 
---quo mul_def
 def mul : ℕ → ℕ → ℕ
 | _ nat.zero     := nat.zero
 | m (nat.succ n) := add m (mul m n)
---ouq
 
---quo eval_mul
 #eval mul 2 7
---ouq
 
 #print mul
 #print mul._main
 
---quo power_def
 def power : ℕ → ℕ → ℕ
 | _ nat.zero     := 1
 | m (nat.succ n) := mul m (power m n)
---ouq
 
 #eval power 2 5
 
---quo power₂_def
 def power₂ (m : ℕ) : ℕ → ℕ
 | nat.zero     := 1
 | (nat.succ n) := mul m (power₂ n)
---ouq
 
 #eval power₂ 2 5
 
---quo iter_def
 def iter (α : Type) (z : α) (f : α → α) : ℕ → α
 | nat.zero     := z
 | (nat.succ n) := f (iter n)
---ouq
 
 #check iter
 
---quo power₃_def
 def power₃ (m n : ℕ) : ℕ :=
 iter ℕ 1 (λl, mul m l) n
---ouq
 
 #eval power₃ 2 5
 
---quo append_def
 def append (α : Type) : list α → list α → list α
 | list.nil         ys := ys
 | (list.cons x xs) ys := list.cons x (append xs ys)
 
 #check append
 #eval append _ [3, 1] [4, 1, 5]
---ouq
 
---quo append₂_def
 def append₂ {α : Type} : list α → list α → list α
 | list.nil         ys := ys
 | (list.cons x xs) ys := list.cons x (append₂ xs ys)
@@ -407,7 +374,6 @@ def append₂ {α : Type} : list α → list α → list α
 
 #check @append₂
 #eval @append₂ _ [3, 1] [4, 1, 5]
---ouq
 
 /-! Aliases:
 
@@ -415,19 +381,14 @@ def append₂ {α : Type} : list α → list α → list α
     `x :: xs`     := `cons x xs`
     `[x₁, …, xN]` := `x₁ :: … :: xN :: []` -/
 
---quo append₃_def
 def append₃ {α : Type} : list α → list α → list α
 | []        ys := ys
 | (x :: xs) ys := x :: append₃ xs ys
---ouq
 
---quo reverse_def
 def reverse {α : Type} : list α → list α
 | []        := []
 | (x :: xs) := reverse xs ++ [x]
---ouq
 
---quo eval_def
 def eval (env : string → ℤ) : aexp → ℤ
 | (aexp.num i)     := i
 | (aexp.var x)     := env x
@@ -435,11 +396,8 @@ def eval (env : string → ℤ) : aexp → ℤ
 | (aexp.sub e₁ e₂) := eval e₁ - eval e₂
 | (aexp.mul e₁ e₂) := eval e₁ * eval e₂
 | (aexp.div e₁ e₂) := eval e₁ / eval e₂
---ouq
 
---quo eval_eval
 #eval eval (λs, 7) (aexp.div (aexp.var "x") (aexp.num 0))
---ouq
 
 /-! Lean only accepts the function definitions for which it can prove
 termination. In particular, it accepts __structurally recursive__ functions,
@@ -452,7 +410,6 @@ Notice the similarity with `def` commands. -/
 
 namespace sorry_lemmas
 
---quo add_lemmas
 lemma add_comm (m n : ℕ) :
   add m n = add n m :=
 sorry
@@ -460,9 +417,7 @@ sorry
 lemma add_assoc (l m n : ℕ) :
   add (add l m) n = add l (add m n) :=
 sorry
---ouq
 
---quo mul_lemmas
 lemma mul_comm (m n : ℕ) :
   mul m n = mul n m :=
 sorry
@@ -474,25 +429,18 @@ sorry
 lemma mul_add (l m n : ℕ) :
   mul l (add m n) = add (mul l m) (mul l n) :=
 sorry
---ouq
 
---quo reverse_reverse
 lemma reverse_reverse {α : Type} (xs : list α) :
   reverse (reverse xs) = xs :=
 sorry
---ouq
 
 /-! Axioms are like lemmas but without proofs (`:= …`). Constant declarations
 are like definitions but without bodies (`:= …`). -/
 
---quo ab_def
 constants a b : ℤ
---ouq
 
---quo a_less_b
 axiom a_less_b :
   a < b
---ouq
 
 end sorry_lemmas
 

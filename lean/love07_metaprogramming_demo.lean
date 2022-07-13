@@ -1,4 +1,4 @@
-import .love05_inductive_predicates_demo_master
+import .love05_inductive_predicates_demo
 
 
 /-! # LoVe Demo 7: Metaprogramming
@@ -56,20 +56,17 @@ case.
 `repeat` applies its argument repeatedly on all (sub…sub)goals until it cannot
 be applied any further. -/
 
---quo repeat_example
 lemma repeat_example :
   even 4 ∧ even 7 ∧ even 3 ∧ even 0 :=
 begin
   repeat { apply and.intro },
   repeat { apply even.add_two },
---ouq
   repeat { sorry }
 end
 
 /-! The "orelse" combinator `<|>` tries its first argument and applies its
 second argument in case of failure. -/
 
---quo repeat_orelse_example
 lemma repeat_orelse_example :
   even 4 ∧ even 7 ∧ even 3 ∧ even 0 :=
 begin
@@ -77,14 +74,12 @@ begin
   repeat {
     apply even.add_two
     <|> apply even.zero },
---ouq
   repeat { sorry }
 end
 
 /-! `iterate` works repeatedly on the first goal until it fails; then it
 stops. -/
 
---quo iterate_orelse_example
 lemma iterate_orelse_example :
   even 4 ∧ even 7 ∧ even 3 ∧ even 0 :=
 begin
@@ -92,56 +87,44 @@ begin
   iterate {
     apply even.add_two
     <|> apply even.zero },
---ouq
   repeat { sorry }
 end
 
 /-! `all_goals` applies its argument exactly once to each goal. It succeeds only
 if the argument succeeds on **all** goals. -/
 
---quo all_goals_example
 lemma all_goals_example :
   even 4 ∧ even 7 ∧ even 3 ∧ even 0 :=
 begin
   repeat { apply and.intro },
---ouq
-/-fails
---quo all_goals_example_wrong
   all_goals { apply even.add_two },   -- fails
---ouq
-sliaf-/
   repeat { sorry }
 end
 
 /-! `try` transforms its argument into a tactic that never fails. -/
 
---quo all_goals_try_example
 lemma all_goals_try_example :
   even 4 ∧ even 7 ∧ even 3 ∧ even 0 :=
 begin
   repeat { apply and.intro },
   all_goals { try { apply even.add_two } },
---ouq
   repeat { sorry }
 end
 
 /-! `any_goals` applies its argument exactly once to each goal. It succeeds
 if the argument succeeds on **any** goal. -/
 
---quo any_goals_example
 lemma any_goals_example :
   even 4 ∧ even 7 ∧ even 3 ∧ even 0 :=
 begin
   repeat { apply and.intro },
   any_goals { apply even.add_two },
---ouq
   repeat { sorry }
 end
 
 /-! `solve1` transforms its argument into an all-or-nothing tactic. If the
 argument does not prove the goal, `solve1` fails. -/
 
---quo any_goals_solve1_repeat_orelse_example
 lemma any_goals_solve1_repeat_orelse_example :
   even 4 ∧ even 7 ∧ even 3 ∧ even 0 :=
 begin
@@ -149,7 +132,6 @@ begin
   any_goals { solve1 { repeat {
     apply even.add_two
     <|> apply even.zero } } },
---ouq
   repeat { sorry }
 end
 
@@ -157,12 +139,10 @@ end
 lead to infinite looping: -/
 
 /-
---quo repeat_not_example
 lemma repeat_not_example :
   ¬ even 1 :=
 begin
   repeat { apply not.intro },
---ouq
   sorry
 end
 -/
@@ -170,7 +150,6 @@ end
 /-! Let us start with the actual metaprogramming, by coding a custom tactic. The
 tactic embodies the behavior we hardcoded in the `solve1` example above: -/
 
---quo intro_and_even
 meta def intro_and_even : tactic unit :=
 do
   tactic.repeat (tactic.applyc ``and.intro),
@@ -178,7 +157,6 @@ do
     (tactic.applyc ``even.add_two
      <|> tactic.applyc ``even.zero))),
   pure ()
---ouq
 
 /-! The `meta` keyword makes it possible for the function to call other
 metafunctions. The `do` keyword enters a monad, and the `<|>` operator is the
@@ -191,12 +169,10 @@ definitions need not terminate but cannot be used in non-`meta` contexts.
 
 Let us apply our custom tactic: -/
 
---quo any_goals_solve1_repeat_orelse_example₂
 lemma any_goals_solve1_repeat_orelse_example₂ :
   even 4 ∧ even 7 ∧ even 3 ∧ even 0 :=
 begin
   intro_and_even,
---ouq
   repeat { sorry }
 end
 
@@ -217,15 +193,12 @@ Tactics have access to
 The tactic monad is an alternative monad, with `fail` and `<|>`. Tactics can
 also produce trace messages. -/
 
---quo even_14
 lemma even_14 :
   even 14 :=
 by do
   tactic.trace "Proving evenness …",
   intro_and_even
---ouq
 
---quo hello_then_intro_and_even
 meta def hello_then_intro_and_even : tactic unit :=
 do
   tactic.trace "Proving evenness …",
@@ -234,13 +207,9 @@ do
 lemma even_16 :
   even 16 :=
 by hello_then_intro_and_even
---ouq
 
---quo run_cmd_hello_world
 run_cmd tactic.trace "Hello, Metaworld!"
---ouq
 
---quo local_context_etc
 meta def trace_goals : tactic unit :=
 do
   tactic.trace "local context:",
@@ -261,7 +230,6 @@ by do
   tactic.applyc ``and.intro,
   trace_goals,
   intro_and_even
---ouq
 
 lemma triv_imp (a : Prop) (h : a) :
   a :=
@@ -279,7 +247,6 @@ by do
   tactic.trace υ,
   tactic.apply h
 
---quo hypothesis
 meta def exact_list : list expr → tactic unit
 | []        := tactic.fail "no matching expression found"
 | (h :: hs) :=
@@ -293,14 +260,11 @@ meta def hypothesis : tactic unit :=
 do
   hs ← tactic.local_context,
   exact_list hs
---ouq
 
---quo hypothesis_example
 lemma app_of_app {α : Type} {p : α → Prop} {a : α}
     (h : p a) :
   p a :=
 by hypothesis
---ouq
 
 
 /-! ## Names, Expressions, Declarations, and Environments
@@ -351,33 +315,23 @@ parentheses:
 
 * Expressions with three backticks are pre-expressions without name checking. -/
 
---quo one_backtick_expr
 run_cmd do
   let e : expr := `(list.map (λn : ℕ, n + 1) [1, 2, 3]),
   tactic.trace e
---ouq one_backtick_expr
 
-/-fails
---quo one_backtick_expr_wrong
 run_cmd do
   let e : expr := `(list.map _ [1, 2, 3]),   -- fails
   tactic.trace e
---ouq
-sliaf-/
 
---quo two_backticks_expr
 run_cmd do
   let e₁ : pexpr := ``(list.map (λn, n + 1) [1, 2, 3]),
   let e₂ : pexpr := ``(list.map _ [1, 2, 3]),
   tactic.trace e₁,
   tactic.trace e₂
---ouq
 
---quo three_backticks_expr
 run_cmd do
   let e : pexpr := ```(seattle.washington),
   tactic.trace e
---ouq
 
 /-! We can also create literal names with backticks:
 
@@ -385,25 +339,18 @@ run_cmd do
 
 * Names with two backticks, ``n, are resolved and checked. -/
 
---quo backtick_names
 run_cmd tactic.trace `and.intro
 run_cmd tactic.trace `intro_and_even
 run_cmd tactic.trace `seattle.washington
 
 run_cmd tactic.trace ``and.intro
 run_cmd tactic.trace ``intro_and_even
---ouq
-/-fails
---quo backtick_names_wrong
 run_cmd tactic.trace ``seattle.washington   -- fails
---ouq
-sliaf-/
 
 /-! __Antiquotations__ embed an existing expression in a larger expression. They
 are announced by the prefix `%%` followed by a name from the current context.
 Antiquotations are available with one, two, and three backticks: -/
 
---quo antiquotation_examples
 run_cmd do
   let x : expr := `(2 : ℕ),
   let e : expr := `(%%x + 1),
@@ -418,9 +365,7 @@ run_cmd do
   let x : expr  := `(@id ℕ),
   let e : pexpr := ```(a _ %%x),
   tactic.trace e
---ouq
 
---quo antiquotation_patterns_example
 lemma one_add_two_eq_three :
   1 + 2 = 3 :=
 by do
@@ -433,7 +378,6 @@ by do
   tactic.trace l,
   tactic.trace r,
   tactic.exact `(refl _ : 3 = 3)
---ouq
 
 #print declaration
 
@@ -441,11 +385,9 @@ by do
 operations to query and modify it. The `environment.fold` metafunction iterates
 over all declarations making up the environment. -/
 
---quo environment.fold
 run_cmd do
   env ← tactic.get_env,
   tactic.trace (environment.fold env 0 (λdecl n, n + 1))
---ouq
 
 
 /-! ## First Example: A Conjuction-Destructing Tactic
@@ -453,7 +395,6 @@ run_cmd do
 We define a `destruct_and` tactic that automates the elimination of `∧` in
 premises, automating proofs such as these: -/
 
---quo example_1_2_3
 lemma abcd_a (a b c d : Prop) (h : a ∧ (b ∧ c) ∧ d) :
   a :=
 and.elim_left h
@@ -465,12 +406,10 @@ and.elim_left (and.elim_left (and.elim_right h))
 lemma abcd_bc (a b c d : Prop) (h : a ∧ (b ∧ c) ∧ d) :
   b ∧ c :=
 and.elim_left (and.elim_right h)
---ouq
 
 /-! Our tactic relies on a helper metafunction, which takes as argument the
 hypothesis `h` to use as an expression rather than as a name: -/
 
---quo destruct_and_helper
 meta def destruct_and_helper : expr → tactic unit
 | h :=
   do
@@ -488,18 +427,14 @@ meta def destruct_and_helper : expr → tactic unit
         destruct_and_helper hb }
     | _            := tactic.exact h
     end
---ouq
 
---quo destruct_and_main
 meta def destruct_and (nam : name) : tactic unit :=
 do
   h ← tactic.get_local nam,
   destruct_and_helper h
---ouq
 
 /-! Let us check that our tactic works: -/
 
---quo example_4_5_6
 lemma abc_a (a b c : Prop) (h : a ∧ b ∧ c) :
   a :=
 by destruct_and `h
@@ -511,13 +446,10 @@ by destruct_and `h
 lemma abc_bc (a b c : Prop) (h : a ∧ b ∧ c) :
   b ∧ c :=
 by destruct_and `h
---ouq
 
-/-fails
 lemma abc_ac (a b c : Prop) (h : a ∧ b ∧ c) :
   a ∧ c :=
 by destruct_and `h   -- fails
-sliaf-/
 
 
 /-! ## Second Example: A Provability Advisor
@@ -526,24 +458,19 @@ Next, we implement a `prove_direct` tool that traverses all lemmas in the
 database and checks whether one of them can be used to prove the current goal. A
 similar tactic is available in `mathlib` under the name `library_search`. -/
 
---quo is_theorem
 meta def is_theorem : declaration → bool
 | (declaration.defn _ _ _ _ _ _) := ff
 | (declaration.thm _ _ _ _)      := tt
 | (declaration.cnst _ _ _ _)     := ff
 | (declaration.ax _ _ _)         := tt
---ouq
 
---quo get_all_theorems
 meta def get_all_theorems : tactic (list name) :=
 do
   env ← tactic.get_env,
   pure (environment.fold env [] (λdecl nams,
     if is_theorem decl then declaration.to_name decl :: nams
     else nams))
---ouq
 
---quo prove_with_name
 meta def prove_with_name (nam : name) : tactic unit :=
 do
   tactic.applyc nam
@@ -551,9 +478,7 @@ do
      : tactic.apply_cfg),
   tactic.all_goals tactic.assumption,
   pure ()
---ouq
 
---quo prove_direct
 meta def prove_direct : tactic unit :=
 do
   nams ← get_all_theorems,
@@ -562,7 +487,6 @@ do
         prove_with_name nam,
         tactic.trace ("directly proved by " ++ to_string nam))
     nams
---ouq
 
 lemma nat.eq_symm (x y : ℕ) (h : x = y) :
   y = x :=
@@ -576,25 +500,20 @@ lemma list.reverse_twice (xs : list ℕ) :
   list.reverse (list.reverse xs) = xs :=
 by prove_direct
 
-/-fails
 lemma list.reverse_twice_symm (xs : list ℕ) :
   xs = list.reverse (list.reverse xs) :=
 by prove_direct   -- fails
-sliaf-/
 
 /-! As a small refinement, we propose a version of `prove_direct` that also
 looks for equalities stated in symmetric form. -/
 
---quo prove_direct_symm
 meta def prove_direct_symm : tactic unit :=
 prove_direct
 <|>
 do {
   tactic.applyc `eq.symm,
   prove_direct }
---ouq
 
---quo prove_direct_symm_examples
 lemma list.reverse_twice₂ (xs : list ℕ) :
   list.reverse (list.reverse xs) = xs :=
 by prove_direct_symm
@@ -602,7 +521,6 @@ by prove_direct_symm
 lemma list.reverse_twice_symm₂ (xs : list ℕ) :
   xs = list.reverse (list.reverse xs) :=
 by prove_direct_symm
---ouq
 
 
 /-! ## A Look at Two Predefined Tactics
