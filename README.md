@@ -12,7 +12,7 @@ web page.
 ## Windows
 
 These instructions are also covered in a [YouTube video](https://www.youtube.com/watch?v=y3GsHIe4wZ4).
-This does not include the "Install our Logical Verification Repository" step.
+This does not include the "Install Our Logical Verification Repository" step.
 
 
 ### Get Lean
@@ -103,7 +103,7 @@ This does not include the "Install our Logical Verification Repository" step.
 * Select the `lean` extension (unique name `jroesch.lean`). There is also a
   `lean4` extension, but that one does not work for our course.
 
-* Click "install" (In old versions of VSCode, you might need to click "reload"
+* Click "install" (in old versions of VSCode, you might need to click "reload"
   afterwards)
 
 * Setup the default profile:
@@ -176,7 +176,7 @@ not including the Logical Verification repository details.
   is on your `PATH`.
 
 
-### Install our Logical Verification Repository
+### Install Our Logical Verification Repository
 
 * Use `cd` to go to the directory you want to place the project in. (A new
   folder will be created for it at that location.)
@@ -209,7 +209,7 @@ not including the Logical Verification repository details.
 ## Other Linux Distros
 
 Follow [these instructions](https://leanprover-community.github.io/install/linux.html) and proceed by the instructions
-"Install our logical verification repository" for Debian/Ubunutu above.
+"Install Our Logical Verification Repository" for Debian/Ubunutu above.
 
 </details>
 
@@ -232,7 +232,7 @@ Logical Verification repository details.
   ```
 
 
-### Install our Logical Verification Repository
+### Install Our Logical Verification Repository
 
 * Open a terminal.
 
