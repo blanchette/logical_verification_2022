@@ -1,7 +1,6 @@
 # Logical Verification 2022: Installation Instructions
 
-We have installation instructions for Windows, Linux, and macOS. As a backup
-plan, we provide a virtual machine on which Lean is already installed.
+We have installation instructions for Windows, Linux, and macOS.
 
 These directions are adapted from the
 [leanprover-community](https://leanprover-community.github.io/get_started.html#regular-install)
@@ -18,16 +17,16 @@ This does not include the "Install our Logical Verification Repository" step.
 
 ### Get Lean
 
-* Install Git for Windows: https://gitforwindows.org/.
-  Accept all default answers during the installation
-  (or, if you would like to minimize the installation,
-  you may deselect all components on the "Select components"
+* Install Git for Windows: https://gitforwindows.org/. Accept all default
+  answers during the installation (or, if you would like to minimize the
+  installation, you may deselect all components on the "Select components"
   question).
 
 * Start the newly installed `Git Bash` by searching for it in the Windows
   search bar.
 
-* In Git Bash, run the command `curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh`.
+* In Git Bash, run the command
+  `curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh`.
 
 * Press `[Enter]` to proceed with the installation.
 
@@ -49,21 +48,33 @@ This does not include the "Install our Logical Verification Repository" step.
 * Open Git Bash (type `git bash` in the Start Menu)
 
 * Run `which python`
-  * The expected output is something like `/c/Users/<user>/AppData/Local/Programs/Python/Pythonxx-xx/python`. In this case, proceed to the next step.
-  * If it's something like `/c/Users/<user>/AppData/Local/Microsoft/WindowsApps/python`, then
-    * Did you follow the instruction to select `Add Python 3.x to PATH` during the installation?
+  * The expected output is something like
+    `/c/Users/<user>/AppData/Local/Programs/Python/Pythonxx-xx/python`. In this
+    case, proceed to the next step.
+  * If it's something like
+    `/c/Users/<user>/AppData/Local/Microsoft/WindowsApps/python`, then
+    * Did you follow the instruction to select `Add Python 3.x to PATH` during
+      the installation?
       * If not, re-run the python installer to uninstall python and try again.
     * Otherwise, you need to disable a Windows setting.
-      * Type `manage app execution aliases` into the Windows search prompt (start menu) and open the corresponding System Settings page.
-      * There should be two entries `App Installer python.exe` and `App Installer python3.exe`. Ensure that both of these are set to `Off`.
+      * Type `manage app execution aliases` into the Windows search prompt
+        (start menu) and open the corresponding System Settings page.
+      * There should be two entries `App Installer python.exe` and `App
+        Installer python3.exe`. Ensure that both of these are set to `Off`.
     * Close and reopen Git Bash and restart this step.
-  * If it is any other directory, you might have an existing version of Python. Ask the TAs for help.
-  * If you get `command not found`, you should add the Python directory to your path. Google how to do this, or ask the TAs.
+  * If it is any other directory, you might have an existing version of Python.
+    Ask the TAs for help.
+  * If you get `command not found`, you should add the Python directory to your
+    path. Google how to do this, or ask the TAs.
 
-* Run `cp "$(which python)" "$(which python)"3`. This ensures that we can use the command `python3` to call Python.
+* Run `cp "$(which python)" "$(which python)"3`. This ensures that we can use
+  the command `python3` to call Python.
 
-* Test whether everything is working by typing `python3 --version` and `pip3 --version`. If both commands give a short output and no error, everything is set up correctly.
-  * If `pip3 --version` doesn't give any output, run the command `python3 -m pip install --upgrade pip`, which should fix it.
+* Test whether everything is working by typing `python3 --version` and `pip3
+  --version`. If both commands give a short output and no error, everything is
+  set up correctly.
+  * If `pip3 --version` doesn't give any output, run the command `python3 -m pip
+    install --upgrade pip`, which should fix it.
 
 
 ### Configure Git
@@ -82,29 +93,30 @@ This does not include the "Install our Logical Verification Repository" step.
 
 ### Install and Configure the Editor
 
-* Install [VS Code](https://code.visualstudio.com/).
+* Install [VSCode](https://code.visualstudio.com/).
 
-* Launch VS Code.
+* Launch VSCode.
 
-* Click on the extension icon ![(image of icon)](img/new-extensions-icon.png)
-  (or ![(image of icon)](img/extensions-icon.png) in older versions) in the side bar on the left edge of
-  the screen (or press <kbd>Shift</kbd><kbd>Ctrl</kbd><kbd>X</kbd>) and search for `leanprover`.
+* Go to View > Extensions in the menu (or press <kbd>Shift</kbd><kbd>Ctrl</kbd><kbd>X</kbd>) and search for
+  `leanprover`.
 
 * Select the `lean` extension (unique name `jroesch.lean`). There is also a
   `lean4` extension, but that one does not work for our course.
 
-* Click "install" (In old versions of VS Code, you might need to click "reload" afterwards)
+* Click "install" (In old versions of VSCode, you might need to click "reload"
+  afterwards)
 
 * Setup the default profile:
 
-  * If you're using `git bash`, press `ctrl-shift-p` to open the command palette, and type
-    `Select Default Profile`, then select `git bash` from the menu.
+  * If you're using `git bash`, press `ctrl-shift-p` to open the command
+    palette, and type `Select Default Profile`, then select `git bash` from the
+    menu.
 
-* Restart VS Code.
+* Restart VSCode.
 
-* Verify Lean is working, for example by saving a file `test.lean` and entering `#eval 1+1`.
-  A green line should appear underneath `#eval 1+1`, and hovering the mouse over it you should see `2`
-  displayed.
+* Verify Lean is working, for example by saving a file `test.lean` and entering
+  `#eval 1+1`. A green line should appear underneath `#eval 1+1`, and hovering
+  the mouse over it you should see `2` displayed.
 
 
 ### Install Our Logical Verification Repository
@@ -178,7 +190,7 @@ not including the Logical Verification repository details.
   The last command should produce a long list of warnings and errors which you
   can ignore.
 
-* Launch VScode, either through your application menu or by typing `code`.
+* Launch VSCode, either through your application menu or by typing `code`.
 
 * On the main screen, or in the `File` menu, click `Open Folder`, and choose
   the folder `logical_verification_2022` (not one of its subfolders).
@@ -196,10 +208,8 @@ not including the Logical Verification repository details.
 
 ## Other Linux Distros
 
-Follow [these
-instructions](https://leanprover-community.github.io/install/linux.html) and
-proceed by the instructions "Install our logical verification repository" for
-Debian/Ubunutu above.
+Follow [these instructions](https://leanprover-community.github.io/install/linux.html) and proceed by the instructions
+"Install our logical verification repository" for Debian/Ubunutu above.
 
 </details>
 
@@ -208,9 +218,8 @@ Debian/Ubunutu above.
 
 ## macOS (Intel Macs)
 
-These instructions are also in a [YouTube
-video](https://www.youtube.com/watch?v=NOGWsCNm_FY&ab_channel=leanprovercommunity),
-not including the Logical Verification repository details.
+These instructions are also in a [YouTube video](https://www.youtube.com/watch?v=NOGWsCNm_FY&ab_channel=leanprovercommunity), not including the
+Logical Verification repository details.
 
 
 ### Install Lean
@@ -240,7 +249,7 @@ not including the Logical Verification repository details.
   The last command should produce a long list of warnings and errors which you
   can ignore.
 
-* Open VScode again.
+* Open VSCode again.
 
 * In the `File` menu, click `Open`, and choose the folder
   `logical_verification_2022` (not one of its subfolders). If you used
@@ -258,15 +267,17 @@ not including the Logical Verification repository details.
 
 ## macOS (M1 Macs / Apple Silicon)
 
-Lean is not yet supported on M1 Macs. Specifically, `elan` – which is otherwise recommended (and installed) as part of the above instructions – will not be able to fetch Lean binaries on these devices.
+Lean is not yet supported on M1 Macs. Specifically, `elan` – which is otherwise
+recommended (and installed) as part of the above instructions – will not be able
+to fetch Lean binaries on these devices.
 
 In the meantime, you can try to set up an Intel installation using Rosetta:
 
- * [Install an Intel version of homebrew](https://stackoverflow.com/questions/64882584/how-to-run-the-homebrew-installer-under-rosetta-2-on-m1-macbook).
+* [Install an Intel version of homebrew](https://stackoverflow.com/questions/64882584/how-to-run-the-homebrew-installer-under-rosetta-2-on-m1-macbook).
 
- * Follow [the detailed Lean installation
-   instructions](https://leanprover-community.github.io/install/macos_details.html),
-   ensuring you use the Intel version of homebrew.
+* Follow [the detailed Lean installation
+  instructions](https://leanprover-community.github.io/install/macos_details.html),
+  ensuring you use the Intel version of homebrew.
 
 * Open a Rosetta terminal.
 
@@ -283,7 +294,7 @@ In the meantime, you can try to set up an Intel installation using Rosetta:
   The last command should produce a long list of warnings and errors which you
   can ignore.
 
-* Open VScode again.
+* Open VSCode again.
 
 * In the `File` menu, click `Open`, and choose the folder
   `logical_verification_2022` (not one of its subfolders). If you used
@@ -295,8 +306,8 @@ In the meantime, you can try to set up an Intel installation using Rosetta:
 * You can retrieve the newest exercises and homework that we upload by
   clicking the two arrows forming a circle in the bottom left corner.
 
-There is a [Zulip thread](https://leanprover-community.github.io/archive/stream/113489-new-members/topic/M1.20macs.html)
-with some interim further details and advice. If you have trouble, feel free to ask the TAs for help.
+There is a [Zulip thread](https://leanprover-community.github.io/archive/stream/113489-new-members/topic/M1.20macs.html) with some interim further
+details and advice. If you have trouble, ask the TAs for help.
 
 </details>
 
@@ -327,8 +338,8 @@ with some interim further details and advice. If you have trouble, feel free to 
 * Start the virtual machine by selecting `logical_verification_2021` and
   clicking the `Start` button. The virtual machine is configured to use 4
   processor cores and up to 5GB of RAM. (You can edit the virtual machine to
-  change these values.) It uses around 4GB of RAM if you open all the Lean files
-  in VSCode.
+  change these values.) It uses around 4 GB of RAM if you open all the Lean
+  files in VSCode.
 
 * Open VSCode by clicking on the blue ribbon icon on the desktop. VSCode should
   automatically open the folder `~/logical_verification_2021`. In the file
