@@ -1,7 +1,32 @@
 import .lovelib
 
 
-/-! # LoVe Preface
+/-! # CS-VU Diversity and Support Information
+
+When in doubt: Please be respectful and courteous to everyone!
+
+* For class-related interactions: please come talk to the lecturer
+
+* Talk to your study advisors to find resources and support information
+
+* CS BETA diversity address to send your concerns/questions:
+  diversity.cs.beta@vu.nl
+
+* Department diversity office hours, every 3rd Monday of the month, 12-1pm
+  (lunch hours)
+  * STORM Diversity Committee (DiversityCie), diversitycie@storm.vu.nl
+    * Student-led committee for promoting diversity in our faculty
+
+* Support information:
+  * Student well being:
+    https://vu.nl/en/student/student-wellbeing
+  * Safe social setting on campus
+    https://vu.nl/en/about-vu/more-about/safe-social-setting-on-campus
+
+* https://3d.vu.nl/ for diversity and support related issues at the VU level
+
+
+# LoVe Preface
 
 ## Proof Assistants
 
@@ -63,17 +88,17 @@ Strengths:
 
 ### Web Site
 
-    https://lean-forward.github.io/logical-verification/2021/index.html
+    https://lean-forward.github.io/logical-verification/2022/index.html
 
 
 ### Installation Instructions
 
-    https://github.com/blanchette/logical_verification_2021/blob/main/README.md#logical-verification-2021---installation-instructions
+    https://github.com/blanchette/logical_verification_2022/blob/main/README.md#logical-verification-2022---installation-instructions
 
 
 ### Repository (Demos, Exercises, Homework)
 
-    https://github.com/blanchette/logical_verification_2021
+    https://github.com/blanchette/logical_verification_2022
 
 The file you are currently looking at is a demo. There are
 
@@ -89,8 +114,8 @@ on the exercises, which build on the demos.
 
 ### The Hitchhiker's Guide to Logical Verification
 
-    https://github.com/blanchette/logical_verification_2021/blob/main/hitchhikers_guide.pdf
-    https://github.com/blanchette/logical_verification_2021/blob/main/hitchhikers_guide_tablet.pdf
+    https://github.com/blanchette/logical_verification_2022/blob/main/hitchhikers_guide.pdf
+    https://github.com/blanchette/logical_verification_2022/blob/main/hitchhikers_guide_tablet.pdf
 
 The lecture notes consist of a preface and 13 chapters. They cover the same
 material as the corresponding lectures but with more details. Sometimes there
